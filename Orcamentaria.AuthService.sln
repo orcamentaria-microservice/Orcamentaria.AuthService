@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34330.188
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orcamentaria.AuthService.API", "Orcamentaria.AuthService.API\Orcamentaria.AuthService.API.csproj", "{D2E00DF9-CDC1-4BC2-9303-19685B392D8D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orcamentaria.AuthService.Application", "Orcamentaria.AuthService.Application\Orcamentaria.AuthService.Application.csproj", "{D8DCD564-8685-4441-A212-DC7F19EB53D5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orcamentaria.AuthService.Domain", "Orcamentaria.AuthService.Domain\Orcamentaria.AuthService.Domain.csproj", "{751E4B31-48A4-46E8-AB6A-ED639084725F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orcamentaria.AuthService.Infrastructure", "Orcamentaria.AuthService.Infrastructure\Orcamentaria.AuthService.Infrastructure.csproj", "{F9584C69-E91F-443F-A60B-9F57CE51BFB3}"
+	ProjectSection(ProjectDependencies) = postProject
+		{751E4B31-48A4-46E8-AB6A-ED639084725F} = {751E4B31-48A4-46E8-AB6A-ED639084725F}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2E00DF9-CDC1-4BC2-9303-19685B392D8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2E00DF9-CDC1-4BC2-9303-19685B392D8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2E00DF9-CDC1-4BC2-9303-19685B392D8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2E00DF9-CDC1-4BC2-9303-19685B392D8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8DCD564-8685-4441-A212-DC7F19EB53D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8DCD564-8685-4441-A212-DC7F19EB53D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8DCD564-8685-4441-A212-DC7F19EB53D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8DCD564-8685-4441-A212-DC7F19EB53D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{751E4B31-48A4-46E8-AB6A-ED639084725F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{751E4B31-48A4-46E8-AB6A-ED639084725F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{751E4B31-48A4-46E8-AB6A-ED639084725F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{751E4B31-48A4-46E8-AB6A-ED639084725F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9584C69-E91F-443F-A60B-9F57CE51BFB3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9584C69-E91F-443F-A60B-9F57CE51BFB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9584C69-E91F-443F-A60B-9F57CE51BFB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9584C69-E91F-443F-A60B-9F57CE51BFB3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {16E9A5A4-FDD4-48E3-A2E6-CB0CC61789E1}
+	EndGlobalSection
+EndGlobal
