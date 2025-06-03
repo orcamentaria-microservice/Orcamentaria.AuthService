@@ -25,12 +25,12 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             => _service.GetById(id);
 
         [Authorize(Roles = "PERMISSION:READ")]
-        [HttpGet("GetByResource/{id}", Name = "PermissionGetByResource")]
+        [HttpGet("GetByResource/{resource}", Name = "PermissionGetByResource")]
         public Response<IEnumerable<PermissionResponseDTO>> GetByResource(ResourceEnum resource)
             => _service.GetByResource(resource);
 
         [Authorize(Roles = "PERMISSION:READ")]
-        [HttpGet("GetByType/{id}", Name = "PermissionGetByType")]
+        [HttpGet("GetByType/{type}", Name = "PermissionGetByType")]
         public Response<IEnumerable<PermissionResponseDTO>> GetByType(PermissionTypeEnum type)
             => _service.GetByType(type);
 

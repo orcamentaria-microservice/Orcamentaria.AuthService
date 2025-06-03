@@ -23,7 +23,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         public Response<ServiceResponseDTO> GetById(long id)
             => _service.GetById(id);
 
-        //[Authorize(Roles = "SERVICE:CREATE")]
+        [Authorize(Roles = "SERVICE:CREATE")]
         [HttpPost(Name = "ServiceInsert")]
         public async Task<Response<ServiceResponseDTO>> Insert([FromBody] ServiceInsertDTO dto)
             => await _service.Insert(dto);

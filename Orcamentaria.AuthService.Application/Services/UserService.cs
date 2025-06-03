@@ -44,8 +44,8 @@ namespace Orcamentaria.AuthService.Application.Services
                 _repository.GetByCompanyId()
                 .Select(x => _mapper.Map<User, UserResponseDTO>(x)));
 
-        public User GetByCredentials(string email, string password)
-            => _repository.GetByCredentials(email, password);
+        public User GetUserByCredential(string email)
+            => _repository.GetByEmail(email);
 
         public Response<UserResponseDTO> GetByEmail(string email)
             => new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(_repository.GetByEmail(email)));
@@ -60,8 +60,8 @@ namespace Orcamentaria.AuthService.Application.Services
                 return new Response<UserResponseDTO>(result);
 
             user.Password = _passwordService.Encript(user.Password);
-            user.CompanyId = _userAuthContext.UserCompanyId;
-
+            user.CompanyId = 10;
+            
             try
             {
                 var entity = await _repository.Insert(user);
@@ -100,7 +100,11 @@ namespace Orcamentaria.AuthService.Application.Services
 
         public async Task<Response<UserResponseDTO>> UpdatePassword(long id, UserUpdatePasswordDTO dto)
         {
-            var result = _passwordService.Validate(dto.Password);
+            if(_userAuthContext.UserId != id)
+                return new Response<UserResponseDTO>(
+                    ResponseErrorEnum.BusinessRuleViolation, "Você não possui permissão para executar essa ação.");
+
+            var result = _passwordService.ValidatePattern(dto.Password);
 
             if (!result.IsValid)
                 return new Response<UserResponseDTO>(result);
@@ -122,13 +126,18 @@ namespace Orcamentaria.AuthService.Application.Services
             if(_repository.GetById(userId) is null)
                 return new Response<UserResponseDTO>(ResponseErrorEnum.NotFound, "Usuário inválido.");
 
+            var addPermissions = new List<Permission>();
+
             foreach (var permissionId in permissionsId)
             {
-                if (!_permissionService.GetById(permissionId).Success)
+                var permission = _permissionService.GetPermission(permissionId);
+                if (permission is null)
                     return new Response<UserResponseDTO>(ResponseErrorEnum.NotFound, $"Permissão {permissionId} inválida.");
 
-                await _repository.AddPermission(userId, permissionId);
+                addPermissions.Add(permission);
             }
+            
+            await _repository.AddPermissions(userId, addPermissions);
 
             return new Response<UserResponseDTO>();
         }
@@ -138,13 +147,18 @@ namespace Orcamentaria.AuthService.Application.Services
             if (_repository.GetById(userId) is null)
                 return new Response<UserResponseDTO>(ResponseErrorEnum.NotFound, "Usuário inválido.");
 
+            var removePermissions = new List<Permission>();
+
             foreach (var permissionId in permissionsId)
             {
-                if (!_permissionService.GetById(permissionId).Success)
+                var permission = _permissionService.GetPermission(permissionId);
+                if (permission is null)
                     return new Response<UserResponseDTO>(ResponseErrorEnum.NotFound, $"Permissão {permissionId} inválida.");
 
-                await _repository.AddPermission(userId, permissionId);
+                removePermissions.Add(permission);
+
             }
+                await _repository.RemovePermissions(userId, removePermissions);
 
             return new Response<UserResponseDTO>();
         }

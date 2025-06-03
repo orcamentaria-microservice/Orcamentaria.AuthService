@@ -18,11 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
-    <PackageReference Include="Orcamentaria.Lib.Domain" Version="8.0.0" />
-    <PackageReference Include="Orcamentaria.Lib.Infrastructure" Version="2.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
+    <PackageReference Include="Orcamentaria.Lib.Application" Version="1.1.1" />
+    <PackageReference Include="Orcamentaria.Lib.Domain" Version="9.0.5" />
+    <PackageReference Include="Orcamentaria.Lib.Infrastructure" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>

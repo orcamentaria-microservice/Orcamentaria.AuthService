@@ -7,5 +7,6 @@ namespace Orcamentaria.AuthService.Domain.DTOs.Permissions
         public ResourceEnum Resource { get; set; }
         public string Description { get; set; }
         public PermissionTypeEnum Type { get; set; }
+        public string IncrementalPermission { get; set; }
     }
 }

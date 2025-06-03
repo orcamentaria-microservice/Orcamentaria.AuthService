@@ -28,6 +28,9 @@ namespace Orcamentaria.AuthService.Application.Validators
             RuleFor(x => x.Type)
                 .NotNull().WithMessage("O {PropertyName} é obrigatório.")
                 .Must(x => Enum.IsDefined(typeof(PermissionTypeEnum), x)).WithMessage("O {PropertyName} é inválido.");
+            RuleFor(x => x.IncrementalPermission)
+                .MaximumLength(50).WithMessage("O tamanho máximo da {PropertyName} é de {MaxLength} caracteres.")
+                .Must(x => !x.Contains(" ")).WithMessage("O {PropertyName} não pode conter espaços, ex: PERMISSAO GERAL.");
         }
 
         public ValidationResult ValidateBeforeInsert(Permission entity)

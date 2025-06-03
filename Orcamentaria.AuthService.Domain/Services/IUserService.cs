@@ -7,7 +7,7 @@ namespace Orcamentaria.AuthService.Domain.Services
     public interface IUserService
     {
         User GetById(long id);
-        User GetByCredentials(string email, string password);
+        User GetUserByCredential(string email);
         Response<UserResponseDTO> GetByEmail(string email);
         Response<IEnumerable<UserResponseDTO>> GetByCompanyId();
         Task<Response<UserResponseDTO>> Insert(UserInsertDTO dto);

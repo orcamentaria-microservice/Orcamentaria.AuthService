@@ -53,9 +53,12 @@ namespace Orcamentaria.AuthService.Application.Services
         {
             try
             {
-                var user = _userService.GetByCredentials(email, _passwordService.Encript(password));
+                var user = _userService.GetUserByCredential(email);
 
                 if (user is null)
+                    return new Response<AuthenticationUserResponseDTO>(ResponseErrorEnum.NotFound, "Email e/ou senha inválidos.");
+
+                if(!_passwordService.PasswordIsValid(password, user.Password))
                     return new Response<AuthenticationUserResponseDTO>(ResponseErrorEnum.NotFound, "Email e/ou senha inválidos.");
 
                 var token = _tokenService.GenerateTokenUser(user);
@@ -70,7 +73,7 @@ namespace Orcamentaria.AuthService.Application.Services
                     RefreshToken = refreshToken
                 });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return new Response<AuthenticationUserResponseDTO>(ResponseErrorEnum.NotFound, "Email e/ou senha inválidos.");
             }

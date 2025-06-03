@@ -8,8 +8,14 @@ namespace Orcamentaria.AuthService.Application.Validators
     public class PasswordValidator : AbstractValidator<string>
     {
         private static string pattern = @"^(?!.*\s)(?=(?:.*\d){3,})(?=.*[A-Z])(?=.*[\W_]).{8,}$";
-        public ValidationResult Validate(string passwordValidate)
+
+        public PasswordValidator()
         {
+        }
+
+        public ValidationResult ValidatePattern(string passwordValidate)
+        {
+
             RuleFor(password => password)
                 .NotEmpty().WithMessage("O {PropertyName} deve ser informado.");
 
@@ -19,7 +25,7 @@ namespace Orcamentaria.AuthService.Application.Validators
                    return Regex.IsMatch(x, pattern);
                }).WithMessage(
                 "O Password deve ter pelo menos 8 caracteres, " +
-                "sendo eles pelo menos 1 letra maiuscula," +
+                "sendo 1 deles uma letra maiuscula," +
                 "1 caracter especial e 3 números.");
 
             return this.Validate(passwordValidate);

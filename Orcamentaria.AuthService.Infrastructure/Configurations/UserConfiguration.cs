@@ -18,6 +18,7 @@ namespace Orcamentaria.AuthService.Infrastructure.Configurations
             builder.Property(p => p.Active).HasColumnName("ACTIVE");
             builder.Property(p => p.CreateAt).HasColumnName("CREATE_AT");
             builder.Property(p => p.UpdateAt).HasColumnName("UPDATE_AT");
+            builder.Ignore(p => p.Permissions);
 
             builder
             .HasMany(u => u.Permissions)

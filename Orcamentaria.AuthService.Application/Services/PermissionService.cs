@@ -4,10 +4,8 @@ using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Domain.Services;
-using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Models;
 using Orcamentaria.Lib.Domain.Validators;
-using System.Linq.Expressions;
 
 namespace Orcamentaria.AuthService.Application.Services
 {
@@ -41,9 +39,14 @@ namespace Orcamentaria.AuthService.Application.Services
                     _repository.GetByType(type)
                     .Select(x => _mapper.Map<Permission, PermissionResponseDTO>(x)));
 
+        public Permission GetPermission(long id)
+            => _repository.GetById(id);
+
         public async Task<Response<PermissionResponseDTO>> Insert(PermissionInsertDTO dto)
         {
             var permission = _mapper.Map<PermissionInsertDTO, Permission>(dto);
+
+            permission.IncrementalPermission = permission.IncrementalPermission.ToUpper();
 
             var result = _validator.ValidateBeforeInsert(permission);
 
@@ -66,6 +69,7 @@ namespace Orcamentaria.AuthService.Application.Services
         {
             var permission = _mapper.Map<PermissionUpdateDTO, Permission>(dto);
 
+            permission.IncrementalPermission = permission.IncrementalPermission.ToUpper();
             permission.Id = id;
 
             var result = _validator.ValidateBeforeUpdate(permission);

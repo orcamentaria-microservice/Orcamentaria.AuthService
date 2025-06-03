@@ -28,27 +28,27 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         public Response<UserResponseDTO> GetByEmail(string email)
             => _service.GetByEmail(email);
 
-        [Authorize(Roles = "SERVICE:CREATE")]
+        [Authorize(Roles = "USER:CREATE")]
         [HttpPost(Name = "UserInsert")]
         public async Task<Response<UserResponseDTO>> Insert([FromBody] UserInsertDTO dto)
             => await _service.Insert(dto);
 
-        [Authorize(Roles = "SERVICE:UPDATE")]
+        [Authorize(Roles = "USER:UPDATE")]
         [HttpPut("{id}", Name = "UserUpdate")]
         public async Task<Response<UserResponseDTO>> Update(long id, [FromBody] UserUpdateDTO dto)
             => await _service.Update(id, dto);
 
-        [Authorize(Roles = "SERVICE:UPDATE")]
+        [Authorize(Roles = "USER:UPDATE:ALTERPERMISSION")]
         [HttpPut("AddPermission/{id}", Name = "UserAddPermission")]
-        public async Task<Response<UserResponseDTO>> AddPermission(long id, [FromBody] dynamic permissionsId)
+        public async Task<Response<UserResponseDTO>> AddPermission(long id, [FromBody] IEnumerable<long> permissionsId)
             => await _service.AddPermission(id, permissionsId);
 
-        [Authorize(Roles = "SERVICE:UPDATE")]
+        [Authorize(Roles = "USER:UPDATE:ALTERPERMISSION")]
         [HttpPut("RemovePermission/{id}", Name = "UserRemovePermission")]
         public async Task<Response<UserResponseDTO>> RemovePermission(long id, [FromBody] dynamic permissionsId)
             => await _service.RemovePermission(id, permissionsId);
 
-        [Authorize(Roles = "SERVICE:UPDATE")]
+        [Authorize(Roles = "USER:UPDATE")]
         [HttpPut("UpdatePassword/{id}", Name = "UserUpdatePassword")]
         public async Task<Response<UserResponseDTO>> UpdatePassword(long id, [FromBody] UserUpdatePasswordDTO dto)
             => await _service.UpdatePassword(id, dto);

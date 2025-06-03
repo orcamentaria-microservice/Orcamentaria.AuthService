@@ -9,6 +9,7 @@ namespace Orcamentaria.AuthService.Domain.Models
         public string Description { get; set; }
         public PermissionTypeEnum Type { get; set; }
         public DateTime CreateAt { get; set; } = DateTime.Now;
-        public IEnumerable<User> Users { get; set; }
+        public string IncrementalPermission { get; set; } = String.Empty;
+        public IEnumerable<User> Users { get; set; } = new List<User>();
     }
 }

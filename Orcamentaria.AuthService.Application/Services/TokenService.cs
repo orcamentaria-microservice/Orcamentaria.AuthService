@@ -2,7 +2,6 @@
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Services;
 using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
 using System.Security.Claims;
 using System.Security.Cryptography;
 
@@ -12,8 +11,8 @@ namespace Orcamentaria.AuthService.Application.Services
     public class TokenService : ITokenService
     {
         private readonly string _private_key_service = "private_key_service.pem";
-        private readonly string _private_key_user = "private_key_user";
-        private readonly string _public_key_user = "public_key_user";
+        private readonly string _private_key_user = "private_key_user.pem";
+        private readonly string _public_key_user = "public_key_user.pem";
 
         public Dictionary<string, string> GenerateSecrets(Service service)
         {
@@ -65,7 +64,7 @@ namespace Orcamentaria.AuthService.Application.Services
         public string GenerateTokenUser(User user)
         {
             var privateKey = GetKey(_private_key_user);
-            using var rsa = RSA.Create();
+            var rsa = RSA.Create();
             rsa.ImportFromPem(privateKey.ToCharArray());
 
             var credentials = new SigningCredentials(new RsaSecurityKey(rsa)
@@ -77,6 +76,7 @@ namespace Orcamentaria.AuthService.Application.Services
             [
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim("Company", user.CompanyId.ToString()),
                 new Claim("TokenType", "Token"),
                 new Claim(ClaimTypes.Role, Guid.NewGuid().ToString()),
@@ -97,8 +97,8 @@ namespace Orcamentaria.AuthService.Application.Services
 
         public string GenerateRefreshTokenUser(User user)
         {
-            var privateKey = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "private_key_user.pem"));
-            using var rsa = RSA.Create();
+            var privateKey = GetKey(_private_key_user);
+            var rsa = RSA.Create();
             rsa.ImportFromPem(privateKey.ToCharArray());
 
             var credentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256);
@@ -188,6 +188,13 @@ namespace Orcamentaria.AuthService.Application.Services
 
         private IEnumerable<Claim> ConvertPermissionsToClaims(IEnumerable<Permission> permissions)
             => permissions
-            .Select(x => new Claim("Permissions", $"{x.Resource.ToString().ToUpper()}:{x.Type.ToString().ToUpper()}"));
+            .Select(x =>
+            {
+                var incrementalPermission = String.Empty;
+                if(!String.IsNullOrEmpty(x.IncrementalPermission))
+                    incrementalPermission = $":{x.IncrementalPermission.ToUpper()}";
+
+                return new Claim(ClaimTypes.Role, $"{x.Resource.ToString().ToUpper()}:{x.Type.ToString().ToUpper()}{incrementalPermission}");
+            });
     }
 }

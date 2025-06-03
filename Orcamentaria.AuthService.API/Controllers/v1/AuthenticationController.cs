@@ -24,8 +24,9 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             => _service.AuthenticateService(clientId, clientSecret);
 
         [HttpPost("User/Authenticate", Name = "UserAuthenticate")]
-        public Response<AuthenticationUserResponseDTO> AuthenticateUser([FromBody] dynamic dto)
-            => _service.AuthenticateUser(dto.clientId, dto.clientSecret);
+        public Response<AuthenticationUserResponseDTO> AuthenticateUser(
+            [FromHeader] string email, [FromHeader] string password)
+            => _service.AuthenticateUser(email, password);
 
         [HttpPost("User/RefreshToken/{refreshToken}", Name = "UserRefreshToken")]
         public Response<AuthenticationUserResponseDTO> RefreshTokenUser(string refreshToken)

@@ -17,6 +17,7 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
         public Permission GetById(long id)
             => _dbContext.Permissions.Where(x => x.Id == id).FirstOrDefault();
 
+
         public IEnumerable<Permission> GetByResource(ResourceEnum resource)
             => _dbContext.Permissions
             .Where(x => x.Resource == resource);

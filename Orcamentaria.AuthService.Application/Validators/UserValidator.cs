@@ -47,7 +47,7 @@ namespace Orcamentaria.AuthService.Application.Validators
                 .NotEmpty().WithMessage("O {PropertyName} é obrigatório.")
                 .Length(200).WithMessage("O {PropertyName} deve ter {MaxLength} caracteres.");
 
-            var resultValidationPassword = _passwordService.Validate(entity.Password);
+            var resultValidationPassword = _passwordService.ValidatePattern(entity.Password);
 
             if (!resultValidationPassword.IsValid)
                 return resultValidationPassword;

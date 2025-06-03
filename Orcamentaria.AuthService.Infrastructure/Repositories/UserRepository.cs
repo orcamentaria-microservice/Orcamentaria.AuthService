@@ -3,6 +3,7 @@ using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Infrastructure.Contexts;
 using Orcamentaria.Lib.Domain.Contexts;
+using Orcamentaria.Lib.Domain.Models;
 
 namespace Orcamentaria.AuthService.Infrastructure.Repositories
 {
@@ -27,16 +28,10 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
         public IEnumerable<User> GetByCompanyId()
             => _dbContext.Users.Where(x => x.CompanyId == _userAuthContext.UserCompanyId);
 
-        public User GetByCredentials(string email, string password)
-            => _dbContext.Users
-            .Include(x => x.Permissions)
-            .Where(x => x.Email == email && x.Password == password && x.CompanyId == _userAuthContext.UserCompanyId)
-            .FirstOrDefault();
-
         public User GetByEmail(string email)
             => _dbContext.Users
                 .Include(x => x.Permissions)
-                .Where(x => x.Email == email && x.CompanyId == _userAuthContext.UserCompanyId)
+                .Where(x => x.Email == email)
                 .FirstOrDefault();
 
         public async Task<User> Insert(User user)
@@ -76,30 +71,27 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<User> AddPermission(long userId, long permissionId)
+        public async Task<User> AddPermissions(long userId, IEnumerable<Permission> permissions)
         {
             var userEntity = _dbContext.Users.Include(x => x.Permissions)
                 .Where(x => x.Id == userId).FirstOrDefault();
 
-            var permissionEntity = _dbContext.Permissions
-                .Where(x => x.Id == permissionId).FirstOrDefault();
-
-            userEntity.Permissions.Add(permissionEntity);
+            userEntity.Permissions = userEntity.Permissions.Union(permissions).ToList();
 
             await _dbContext.SaveChangesAsync();
 
             return userEntity;
         }
 
-        public async Task<User> RemovePermission(long userId, long permissionId)
+        public async Task<User> RemovePermissions(long userId, IEnumerable<Permission> permissions)
         {
             var userEntity = _dbContext.Users.Include(x => x.Permissions)
                 .Where(x => x.Id == userId).FirstOrDefault();
 
-            var permissionEntity = _dbContext.Permissions
-                .Where(x => x.Id == permissionId).FirstOrDefault();
-
-            userEntity.Permissions.Remove(permissionEntity);
+            foreach (var permission in permissions)
+            {
+                userEntity?.Permissions.Remove(permission);
+            }
 
             await _dbContext.SaveChangesAsync();
 
