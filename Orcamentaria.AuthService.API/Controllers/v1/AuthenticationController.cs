@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Orcamentaria.AuthService.Domain.Authentication;
-using Orcamentaria.AuthService.Domain.DTOs.Authentication;
+using Orcamentaria.APIGetaway.Domain.DTOs.Authentication;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Models;
 
@@ -18,14 +17,12 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             _service = service;
         }
 
-        [HttpPost("Service/Authenticate", Name = "ServiceAuthenticate")]
-        public Response<AuthenticationServiceResponseDTO> AuthenticateService(
-            [FromHeader] string clientId, [FromHeader] string clientSecret)
+        [HttpPost("Service/Authenticate/{clientId}/{clientSecret}", Name = "ServiceAuthenticate")]
+        public Response<AuthenticationServiceResponseDTO> AuthenticateService(string clientId, string clientSecret)
             => _service.AuthenticateService(clientId, clientSecret);
 
-        [HttpPost("User/Authenticate", Name = "UserAuthenticate")]
-        public Response<AuthenticationUserResponseDTO> AuthenticateUser(
-            [FromHeader] string email, [FromHeader] string password)
+        [HttpPost("User/Authenticate/{email}/{password}", Name = "UserAuthenticate")]
+        public Response<AuthenticationUserResponseDTO> AuthenticateUser(string email, string password)
             => _service.AuthenticateUser(email, password);
 
         [HttpPost("User/RefreshToken/{refreshToken}", Name = "UserRefreshToken")]

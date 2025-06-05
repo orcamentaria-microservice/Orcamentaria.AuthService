@@ -11,6 +11,14 @@ using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.AuthService.Application.Services;
 using Orcamentaria.Lib.Infrastructure.Contexts;
 using Orcamentaria.Lib.Infrastructure;
+using Orcamentaria.Lib.Domain.Providers;
+using Orcamentaria.AuthService.Application.Providers;
+using Orcamentaria.Lib.Application.HostedService;
+using System.Configuration;
+using Orcamentaria.Lib.Domain.Models.Configurations;
+using Orcamentaria.Lib.Infrastructure.Middlewares;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace Orcamentaria.AuthService.API
 {
@@ -29,6 +37,11 @@ namespace Orcamentaria.AuthService.API
         public void ConfigureServices(IServiceCollection services)
         {
             CommonDI.ResolveCommonServices(_serviceName, _apiVersion, services, Configuration);
+
+            CommonDI.AddServiceRegistryHosted(services, Configuration);
+
+            //services.Configure<ServiceConfiguration>(Configuration.GetSection("ServiceConfiguration"));
+            //services.AddHostedService<ServiceRegistryHostedServiceTest>();
 
             services.AddDbContext<MySqlContext>(options =>
                 options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
@@ -55,6 +68,8 @@ namespace Orcamentaria.AuthService.API
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserService, UserService>();
+
+            services.AddScoped<ITokenProvider, TokenProvider>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
