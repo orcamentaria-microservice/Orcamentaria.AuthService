@@ -5,8 +5,8 @@ namespace Orcamentaria.AuthService.Domain.Repositories
 {
     public interface IUserRepository
     {
-        User GetById(long id);
-        User GetByEmail(string email);
+        User? GetById(long id);
+        User? GetByEmail(string email);
         IEnumerable<User> GetByCompanyId();
         Task<User> Insert(User user);
         Task<User> Update(long id, User user);

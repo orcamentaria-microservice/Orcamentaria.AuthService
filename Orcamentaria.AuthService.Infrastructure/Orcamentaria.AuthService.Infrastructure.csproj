@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.0" />
-    <PackageReference Include="Orcamentaria.Lib.Domain" Version="9.2.4" />
+    <PackageReference Include="Orcamentaria.Lib.Domain" Version="9.2.8" />
   </ItemGroup>
 
   <ItemGroup>

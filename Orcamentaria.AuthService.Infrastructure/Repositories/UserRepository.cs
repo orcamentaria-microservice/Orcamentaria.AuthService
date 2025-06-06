@@ -3,6 +3,7 @@ using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Infrastructure.Contexts;
 using Orcamentaria.Lib.Domain.Contexts;
+using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models;
 
 namespace Orcamentaria.AuthService.Infrastructure.Repositories
@@ -19,84 +20,141 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
             _dbContext = dbContext;
             _userAuthContext = userAuthContext;
         }
-        public User GetById(long id)
-            => _dbContext.Users
-                .Include(x => x.Permissions)
-                .Where(x => x.Id == id && x.CompanyId == _userAuthContext.UserCompanyId)
-                .FirstOrDefault();
+
+        public User? GetById(long id)
+        {
+            try
+            {
+                return _dbContext.Users
+                    .Include(x => x.Permissions)
+                    .FirstOrDefault(x => x.Id == id);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
+        }
 
         public IEnumerable<User> GetByCompanyId()
-            => _dbContext.Users.Where(x => x.CompanyId == _userAuthContext.UserCompanyId);
+        {
+            try
+            {
+                return _dbContext.Users.Where(x => x.CompanyId == _userAuthContext.UserCompanyId);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
+        }
 
-        public User GetByEmail(string email)
-            => _dbContext.Users
-                .Include(x => x.Permissions)
-                .Where(x => x.Email == email)
-                .FirstOrDefault();
+        public User? GetByEmail(string email)
+        {
+            try
+            {
+                return _dbContext.Users
+                    .Include(x => x.Permissions)
+                    .FirstOrDefault(x => x.Email == email);
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
+        }
 
         public async Task<User> Insert(User user)
         {
-            _dbContext.Users.Add(user);
-            await _dbContext.SaveChangesAsync();
-            return user;
+            try
+            {
+                _dbContext.Users.Add(user);
+                await _dbContext.SaveChangesAsync();
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
         }
 
         public async Task<User> Update(long id, User user)
         {
-            var entity = _dbContext.Users.FirstOrDefault(p => p.Id == id && p.CompanyId == _userAuthContext.UserCompanyId);
-
-            if (entity is not null)
+            try
             {
+                var entity = _dbContext.Users.First(
+                    x => x.Id == id && x.CompanyId == _userAuthContext.UserCompanyId);
+
                 entity.Name = user.Name;
                 entity.Active = user.Active;
                 entity.UpdateAt = user.UpdateAt;
 
                 await _dbContext.SaveChangesAsync();
-            }
 
-            return entity;
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
         }
 
         public async Task<User> UpdatePassword(long id, string password)
         {
-            var entity = _dbContext.Users.FirstOrDefault(p => p.Id == id);
-
-            if (entity is not null)
+            try
             {
+                var entity = _dbContext.Users.First(p => p.Id == id);
+            
                 entity.Password = password;
 
                 await _dbContext.SaveChangesAsync();
-            }
 
-            return entity;
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
         }
 
         public async Task<User> AddPermissions(long userId, IEnumerable<Permission> permissions)
         {
-            var userEntity = _dbContext.Users.Include(x => x.Permissions)
-                .Where(x => x.Id == userId).FirstOrDefault();
+            try
+            {
+                var userEntity = _dbContext.Users
+                    .Include(x => x.Permissions)
+                    .First(x => x.Id == userId);
 
-            userEntity.Permissions = userEntity.Permissions.Union(permissions).ToList();
+                userEntity.Permissions = userEntity.Permissions.Union(permissions).ToList();
 
-            await _dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync();
 
-            return userEntity;
+                return userEntity;
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
         }
 
         public async Task<User> RemovePermissions(long userId, IEnumerable<Permission> permissions)
         {
-            var userEntity = _dbContext.Users.Include(x => x.Permissions)
-                .Where(x => x.Id == userId).FirstOrDefault();
-
-            foreach (var permission in permissions)
+            try
             {
-                userEntity?.Permissions.Remove(permission);
+                var userEntity = _dbContext.Users
+                    .Include(x => x.Permissions)
+                    .First(x => x.Id == userId);
+
+                foreach (var permission in permissions)
+                {
+                    userEntity.Permissions.Remove(permission);
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                return userEntity;
             }
-
-            await _dbContext.SaveChangesAsync();
-
-            return userEntity;
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
         }
-
     }
 }

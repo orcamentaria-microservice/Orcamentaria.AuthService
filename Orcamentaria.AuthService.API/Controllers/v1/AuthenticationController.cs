@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Orcamentaria.APIGetaway.Domain.DTOs.Authentication;
+using Orcamentaria.AuthService.Domain.DTOs.User;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Models;
 
@@ -19,15 +20,42 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
 
         [HttpPost("Service/Authenticate/{clientId}/{clientSecret}", Name = "ServiceAuthenticate")]
         public Response<AuthenticationServiceResponseDTO> AuthenticateService(string clientId, string clientSecret)
-            => _service.AuthenticateService(clientId, clientSecret);
+        {
+            try
+            {
+                return _service.AuthenticateService(clientId, clientSecret);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [HttpPost("User/Authenticate/{email}/{password}", Name = "UserAuthenticate")]
         public Response<AuthenticationUserResponseDTO> AuthenticateUser(string email, string password)
-            => _service.AuthenticateUser(email, password);
+        {
+            try
+            {
+                return _service.AuthenticateUser(email, password);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
-        [HttpPost("User/RefreshToken/{refreshToken}", Name = "UserRefreshToken")]
-        public Response<AuthenticationUserResponseDTO> RefreshTokenUser(string refreshToken)
-            => _service.RefreshTokenUser(refreshToken);
+        [HttpPost("User/RefreshToken", Name = "UserRefreshToken")]
+        public Response<AuthenticationUserResponseDTO> RefreshTokenUser([FromBody] UserRefreshToken dto)
+        {
+            try
+            {
+                return _service.RefreshTokenUser(dto.RefreshToken);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
     }
 }

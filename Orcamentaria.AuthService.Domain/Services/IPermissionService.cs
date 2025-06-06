@@ -7,8 +7,8 @@ namespace Orcamentaria.AuthService.Domain.Services
 {
     public interface IPermissionService
     {
-        Permission GetPermission(long id);
         Response<PermissionResponseDTO> GetById(long id);
+        Permission? GetPermission(long id);
         Response<IEnumerable<PermissionResponseDTO>> GetByResource(ResourceEnum resource);
         Response<IEnumerable<PermissionResponseDTO>> GetByType(PermissionTypeEnum type);
         Task<Response<PermissionResponseDTO>> Insert(PermissionInsertDTO dto);

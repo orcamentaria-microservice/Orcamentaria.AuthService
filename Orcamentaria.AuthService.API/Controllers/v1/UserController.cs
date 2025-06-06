@@ -21,36 +21,99 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         [Authorize(Roles = "USER:READ")]
         [HttpGet("GetByCompanyId", Name = "UserGetByCompanyId")]
         public Response<IEnumerable<UserResponseDTO>> GetByCompanyId(long id)
-            => _service.GetByCompanyId();
+        {
+            try
+            {
+                return _service.GetByCompanyId();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "USER:READ")]
         [HttpGet("GetByEmail/{email}", Name = "UserGetByEmail")]
         public Response<UserResponseDTO> GetByEmail(string email)
-            => _service.GetByEmail(email);
+        {
+            try
+            {
+                return _service.GetByEmail(email);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "USER:CREATE")]
         [HttpPost(Name = "UserInsert")]
         public async Task<Response<UserResponseDTO>> Insert([FromBody] UserInsertDTO dto)
-            => await _service.Insert(dto);
+        {
+            try
+            {
+                return await _service.Insert(dto);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "USER:UPDATE")]
         [HttpPut("{id}", Name = "UserUpdate")]
         public async Task<Response<UserResponseDTO>> Update(long id, [FromBody] UserUpdateDTO dto)
-            => await _service.Update(id, dto);
+        {
+            try
+            {
+                return await _service.Update(id, dto);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "USER:UPDATE:ALTERPERMISSION")]
         [HttpPut("AddPermission/{id}", Name = "UserAddPermission")]
         public async Task<Response<UserResponseDTO>> AddPermission(long id, [FromBody] IEnumerable<long> permissionsId)
-            => await _service.AddPermission(id, permissionsId);
+        {
+            try
+            {
+                return await _service.AddPermission(id, permissionsId);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "USER:UPDATE:ALTERPERMISSION")]
         [HttpPut("RemovePermission/{id}", Name = "UserRemovePermission")]
         public async Task<Response<UserResponseDTO>> RemovePermission(long id, [FromBody] dynamic permissionsId)
-            => await _service.RemovePermission(id, permissionsId);
+        {
+            try
+            {
+                return await _service.RemovePermission(id, permissionsId);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "USER:UPDATE")]
         [HttpPut("UpdatePassword/{id}", Name = "UserUpdatePassword")]
         public async Task<Response<UserResponseDTO>> UpdatePassword(long id, [FromBody] UserUpdatePasswordDTO dto)
-            => await _service.UpdatePassword(id, dto);
+        {
+            try
+            {
+                return await _service.UpdatePassword(id, dto);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

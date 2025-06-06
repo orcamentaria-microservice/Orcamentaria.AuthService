@@ -1,7 +1,9 @@
 ﻿using Orcamentaria.APIGetaway.Domain.DTOs.Authentication;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Enums;
+using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Models.Exceptions;
 
 namespace Orcamentaria.AuthService.Application.Services
 {
@@ -31,7 +33,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 var service = _serviceService.GetByCredentials(clientId, clientSecret);
 
                 if (service is null)
-                    return new Response<AuthenticationServiceResponseDTO>(ResponseErrorEnum.NotFound, "Credenciais inválidas.");
+                    throw new InfoException($"Credenciais inválidas.", ErrorCodeEnum.NotFound);
 
                 var token = _tokenService.GenerateTokenService(service);
 
@@ -42,9 +44,17 @@ namespace Orcamentaria.AuthService.Application.Services
                     Token = token,
                 });
             }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return new Response<AuthenticationServiceResponseDTO>(ResponseErrorEnum.NotFound, "Credenciais inválidas.");
+                throw new UnexpectedException(ex.Message, ex);
             }
         }
 
@@ -55,10 +65,10 @@ namespace Orcamentaria.AuthService.Application.Services
                 var user = _userService.GetUserByCredential(email);
 
                 if (user is null)
-                    return new Response<AuthenticationUserResponseDTO>(ResponseErrorEnum.NotFound, "Email e/ou senha inválidos.");
+                    throw new InfoException($"Email e/ou senha inválidos.", ErrorCodeEnum.NotFound);
 
                 if(!_passwordService.PasswordIsValid(password, user.Password))
-                    return new Response<AuthenticationUserResponseDTO>(ResponseErrorEnum.NotFound, "Email e/ou senha inválidos.");
+                    throw new InfoException($"Email e/ou senha inválidos.", ErrorCodeEnum.NotFound);
 
                 var token = _tokenService.GenerateTokenUser(user);
                 var refreshToken = _tokenService.GenerateRefreshTokenUser(user);
@@ -72,9 +82,17 @@ namespace Orcamentaria.AuthService.Application.Services
                     RefreshToken = refreshToken
                 });
             }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return new Response<AuthenticationUserResponseDTO>(ResponseErrorEnum.NotFound, "Email e/ou senha inválidos.");
+                throw new UnexpectedException(ex.Message, ex);
             }
         }
 
@@ -82,12 +100,12 @@ namespace Orcamentaria.AuthService.Application.Services
         {
             var userId = _tokenService.ValidateRefreshToken(refreshToken);
 
-            if(userId == 0)
-                return new Response<AuthenticationUserResponseDTO>(ResponseErrorEnum.NotFound, "Token inválido.");
-
             try
             {
                 var user = _userService.GetById(userId);
+
+                if (user is null)
+                    throw new InfoException($"O {userId} não foi encontrado.", ErrorCodeEnum.NotFound);
 
                 var token = _tokenService.GenerateTokenUser(user);
                 var newRefreshToken = _tokenService.GenerateRefreshTokenUser(user);
@@ -101,10 +119,18 @@ namespace Orcamentaria.AuthService.Application.Services
                     RefreshToken = newRefreshToken
                 });
             }
-            catch (Exception)
+            catch (UnauthorizedException)
             {
-                return new Response<AuthenticationUserResponseDTO>(ResponseErrorEnum.NotFound, "Token inválido.");
+                throw;
             }
-}
+            catch (InfoException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
+        }
     }
 }

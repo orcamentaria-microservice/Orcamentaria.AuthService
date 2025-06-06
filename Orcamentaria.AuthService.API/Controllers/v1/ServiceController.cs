@@ -21,21 +21,57 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         [Authorize(Roles = "SERVICE:READ")]
         [HttpGet("GetById/{id}", Name = "ServiceGetById")]
         public Response<ServiceResponseDTO> GetById(long id)
-            => _service.GetById(id);
+        {
+            try
+            {
+                return _service.GetById(id);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "SERVICE:CREATE")]
         [HttpPost(Name = "ServiceInsert")]
         public async Task<Response<ServiceResponseDTO>> Insert([FromBody] ServiceInsertDTO dto)
-            => await _service.Insert(dto);
+        {
+            try
+            {
+                return await _service.Insert(dto);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "SERVICE:UPDATE")]
         [HttpPut("{id}", Name = "ServiceUpdate")]
         public async Task<Response<ServiceResponseDTO>> Update(long id, [FromBody] ServiceUpdateDTO dto)
-            => await _service.Update(id, dto);
+        {
+            try
+            {
+                return await _service.Update(id, dto);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
         [Authorize(Roles = "SERVICE:UPDATE")]
         [HttpPut("UpdateCredentials/{id}", Name = "ServiceUpdateCredentials")]
         public async Task<Response<ServiceResponseDTO>> UpdateCredentials(long id)
-            => await _service.UpdateCredentials(id);
+        {
+            try
+            {
+                return await _service.UpdateCredentials(id);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

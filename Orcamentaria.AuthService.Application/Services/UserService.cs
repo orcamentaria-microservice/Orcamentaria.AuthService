@@ -5,7 +5,9 @@ using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Contexts;
 using Orcamentaria.Lib.Domain.Enums;
+using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Models.Exceptions;
 using Orcamentaria.Lib.Domain.Validators;
 
 namespace Orcamentaria.AuthService.Application.Services
@@ -20,8 +22,8 @@ namespace Orcamentaria.AuthService.Application.Services
         private readonly IUserAuthContext _userAuthContext;
 
         public UserService(
-            IUserRepository userRepository, 
-            IValidatorEntity<User> validator, 
+            IUserRepository userRepository,
+            IValidatorEntity<User> validator,
             IPasswordService passwordService,
             IPermissionService permissionService,
             IMapper mapper,
@@ -35,42 +37,128 @@ namespace Orcamentaria.AuthService.Application.Services
             _userAuthContext = userAuthContext;
         }
 
-        
-        public User GetById(long id)
-            => _repository.GetById(id);
+
+        public User? GetById(long id)
+        {
+            try
+            {
+                return _repository.GetById(id);
+            }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
+        }
 
         public Response<IEnumerable<UserResponseDTO>> GetByCompanyId()
-            => new Response<IEnumerable<UserResponseDTO>>(
-                _repository.GetByCompanyId()
-                .Select(x => _mapper.Map<User, UserResponseDTO>(x)));
+        {
+            try
+            {
+                var data = _repository.GetByCompanyId();
 
-        public User GetUserByCredential(string email)
-            => _repository.GetByEmail(email);
+                if (!data.Any())
+                    throw new InfoException($"Nenhum dado foi encontrado", ErrorCodeEnum.NotFound);
+
+                return new Response<IEnumerable<UserResponseDTO>>(
+                    _repository.GetByCompanyId()
+                    .Select(x => _mapper.Map<User, UserResponseDTO>(x)));
+            }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
+        }
+
+        public User? GetUserByCredential(string email)
+        {
+            try
+            {
+                return _repository.GetByEmail(email); ;
+            }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
+        }
 
         public Response<UserResponseDTO> GetByEmail(string email)
-            => new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(_repository.GetByEmail(email)));
+        {
+            try
+            {
+                var data = _repository.GetByEmail(email);
+
+                if(data is null)
+                    throw new InfoException($"O {email} não foi encontrado", ErrorCodeEnum.NotFound);
+
+                return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(data));
+            }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
+        }
 
         public async Task<Response<UserResponseDTO>> Insert(UserInsertDTO dto)
         {
-            var user = _mapper.Map<UserInsertDTO, User>(dto);
-
-            var result = _validator.ValidateBeforeInsert(user);
-
-            if (!result.IsValid)
-                return new Response<UserResponseDTO>(result);
-
-            user.Password = _passwordService.Encript(user.Password);
-            user.CompanyId = 10;
-            
             try
             {
+                var user = _mapper.Map<UserInsertDTO, User>(dto);
+
+                var result = _validator.ValidateBeforeInsert(user);
+
+                if (!result.IsValid)
+                    throw new ValidationException(result);
+
+                user.Password = _passwordService.Encript(user.Password);
+                user.CompanyId = _userAuthContext.UserId;
+            
                 var entity = await _repository.Insert(user);
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (ValidationException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return new Response<UserResponseDTO>(ResponseErrorEnum.DatabaseError, ex.Message); ;
+                throw new UnexpectedException(ex.Message, ex);
             }
         }
 
@@ -84,7 +172,7 @@ namespace Orcamentaria.AuthService.Application.Services
             var result = _validator.ValidateBeforeUpdate(user);
 
             if (!result.IsValid)
-                return new Response<UserResponseDTO>(result);
+                throw new ValidationException(result);
 
             try
             {
@@ -92,75 +180,133 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (ValidationException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return new Response<UserResponseDTO>(ResponseErrorEnum.DatabaseError, ex.Message);
+                throw new UnexpectedException(ex.Message, ex);
             }
         }
 
         public async Task<Response<UserResponseDTO>> UpdatePassword(long id, UserUpdatePasswordDTO dto)
         {
-            if(_userAuthContext.UserId != id)
-                return new Response<UserResponseDTO>(
-                    ResponseErrorEnum.BusinessRuleViolation, "Você não possui permissão para executar essa ação.");
-
-            var result = _passwordService.ValidatePattern(dto.Password);
-
-            if (!result.IsValid)
-                return new Response<UserResponseDTO>(result);
-
             try
             {
+                if(_userAuthContext.UserId != id)
+                    throw new UnauthorizedException("Você não possui permissão para executar essa ação.");
+
+                if(_repository.GetById(id) is null)
+                    throw new InfoException($"O {id} não foi encontrado", ErrorCodeEnum.NotFound);
+
+                var result = _passwordService.ValidatePattern(dto.Password);
+
+                if (!result.IsValid)
+                    throw new ValidationException(result);
+
                 var entity = await _repository.UpdatePassword(id, _passwordService.Encript(dto.Password));
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
+            catch (UnauthorizedException)
+            {
+                throw;
+            }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (ValidationException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                return new Response<UserResponseDTO>(ResponseErrorEnum.DatabaseError, ex.Message);
+                throw new UnexpectedException(ex.Message, ex);
             }
         }
         
         public async Task<Response<UserResponseDTO>> AddPermission(long userId, IEnumerable<long> permissionsId)
         {
-            if(_repository.GetById(userId) is null)
-                return new Response<UserResponseDTO>(ResponseErrorEnum.NotFound, "Usuário inválido.");
-
-            var addPermissions = new List<Permission>();
-
-            foreach (var permissionId in permissionsId)
+            try
             {
-                var permission = _permissionService.GetPermission(permissionId);
-                if (permission is null)
-                    return new Response<UserResponseDTO>(ResponseErrorEnum.NotFound, $"Permissão {permissionId} inválida.");
+                if(_repository.GetById(userId) is null)
+                    throw new InfoException($"O {userId} não foi encontrado.", ErrorCodeEnum.NotFound);
 
-                addPermissions.Add(permission);
-            }
+                var addPermissions = new List<Permission>();
+
+                foreach (var permissionId in permissionsId)
+                {
+                    var permission = _permissionService.GetPermission(permissionId);
+
+                    if(permission is null)
+                        throw new InfoException($"A permissão {permissionId} não foi encontrada.", ErrorCodeEnum.NotFound);
+
+                    addPermissions.Add(permission);
+                }
             
-            await _repository.AddPermissions(userId, addPermissions);
+                await _repository.AddPermissions(userId, addPermissions);
 
-            return new Response<UserResponseDTO>();
+                return new Response<UserResponseDTO>();
+            }
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
         }
 
         public async Task<Response<UserResponseDTO>> RemovePermission(long userId, IEnumerable<long> permissionsId)
         {
-            if (_repository.GetById(userId) is null)
-                return new Response<UserResponseDTO>(ResponseErrorEnum.NotFound, "Usuário inválido.");
-
-            var removePermissions = new List<Permission>();
-
-            foreach (var permissionId in permissionsId)
+            try
             {
-                var permission = _permissionService.GetPermission(permissionId);
-                if (permission is null)
-                    return new Response<UserResponseDTO>(ResponseErrorEnum.NotFound, $"Permissão {permissionId} inválida.");
+                if (_repository.GetById(userId) is null)
+                    throw new InfoException($"O {userId} não foi encontrado.", ErrorCodeEnum.NotFound);
 
-                removePermissions.Add(permission);
+                var removePermissions = new List<Permission>();
 
+                foreach (var permissionId in permissionsId)
+                {
+                    var permission = _permissionService.GetPermission(permissionId);
+                
+                    if (permission is null)
+                        throw new InfoException($"A permissão {permissionId} não foi encontrada.", ErrorCodeEnum.NotFound);
+
+                    removePermissions.Add(permission);
+
+                }
+                    await _repository.RemovePermissions(userId, removePermissions);
+
+                return new Response<UserResponseDTO>();
             }
-                await _repository.RemovePermissions(userId, removePermissions);
-
-            return new Response<UserResponseDTO>();
+            catch (DatabaseException)
+            {
+                throw;
+            }
+            catch (InfoException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
         }
     }
 }
