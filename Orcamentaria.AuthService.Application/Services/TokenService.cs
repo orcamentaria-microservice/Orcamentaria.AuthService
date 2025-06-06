@@ -70,7 +70,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
-            catch (ConfigurationException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -114,7 +114,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
-            catch (ConfigurationException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -152,7 +152,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new JwtSecurityTokenHandler().WriteToken(token);
             }
-            catch (ConfigurationException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -200,11 +200,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return userId;
             }
-            catch (ConfigurationException)
-            {
-                throw;
-            }
-            catch (UnauthorizedAccessException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -239,7 +235,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return reader.ReadToEnd();
             }
-            catch (ConfigurationException)
+            catch (DefaultException)
             {
                 throw;
             }

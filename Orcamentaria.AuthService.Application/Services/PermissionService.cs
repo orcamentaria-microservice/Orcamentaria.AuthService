@@ -39,7 +39,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 return new Response<PermissionResponseDTO>(
                     _mapper.Map<Permission, PermissionResponseDTO>(data));
             }
-            catch (DatabaseException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -61,11 +61,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 return new Response<IEnumerable<PermissionResponseDTO>>(
                     data.Select(x => _mapper.Map<Permission, PermissionResponseDTO>(x)));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -87,11 +83,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 return new Response<IEnumerable<PermissionResponseDTO>>(
                     data.Select(x => _mapper.Map<Permission, PermissionResponseDTO>(x)));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -107,7 +99,7 @@ namespace Orcamentaria.AuthService.Application.Services
             {
                 return _repository.GetById(id);
             }
-            catch (DatabaseException)
+            catch(DefaultException)
             {
                 throw;
             }
@@ -134,11 +126,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<PermissionResponseDTO>(_mapper.Map<Permission, PermissionResponseDTO>(entity));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (ValidationException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -169,15 +157,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<PermissionResponseDTO>(_mapper.Map<Permission, PermissionResponseDTO>(entity));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
-            {
-                throw;
-            }
-            catch (ValidationException)
+            catch (DefaultException)
             {
                 throw;
             }

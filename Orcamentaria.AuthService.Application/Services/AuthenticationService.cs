@@ -44,11 +44,7 @@ namespace Orcamentaria.AuthService.Application.Services
                     Token = token,
                 });
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -65,7 +61,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 var user = _userService.GetUserByCredential(email);
 
                 if (user is null)
-                    throw new InfoException($"Email e/ou senha inválidos.", ErrorCodeEnum.NotFound);
+                    throw new UnauthorizedException($"Email e/ou senha inválidos.");
 
                 if(!_passwordService.PasswordIsValid(password, user.Password))
                     throw new InfoException($"Email e/ou senha inválidos.", ErrorCodeEnum.NotFound);
@@ -82,11 +78,7 @@ namespace Orcamentaria.AuthService.Application.Services
                     RefreshToken = refreshToken
                 });
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -119,11 +111,7 @@ namespace Orcamentaria.AuthService.Application.Services
                     RefreshToken = newRefreshToken
                 });
             }
-            catch (UnauthorizedException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }

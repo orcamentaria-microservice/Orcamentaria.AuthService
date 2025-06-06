@@ -44,11 +44,7 @@ namespace Orcamentaria.AuthService.Application.Services
             {
                 return _repository.GetById(id);
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -71,11 +67,7 @@ namespace Orcamentaria.AuthService.Application.Services
                     _repository.GetByCompanyId()
                     .Select(x => _mapper.Map<User, UserResponseDTO>(x)));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -91,7 +83,7 @@ namespace Orcamentaria.AuthService.Application.Services
             {
                 return _repository.GetByEmail(email); ;
             }
-            catch (DatabaseException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -112,11 +104,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(data));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -144,15 +132,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (ValidationException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -180,11 +160,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (ValidationException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -213,19 +189,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
-            catch (UnauthorizedException)
-            {
-                throw;
-            }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (ValidationException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -258,11 +222,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<UserResponseDTO>();
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -295,11 +255,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<UserResponseDTO>();
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }

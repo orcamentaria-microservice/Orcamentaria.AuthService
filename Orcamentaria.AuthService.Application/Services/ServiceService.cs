@@ -41,11 +41,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return data;
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -67,11 +63,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 return new Response<ServiceResponseDTO>(
                     _mapper.Map<Service, ServiceResponseDTO>(data));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (InfoException)
+            catch (DefaultException)
             {
                 throw;
             }
@@ -101,11 +93,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 return new Response<ServiceResponseDTO>(_mapper.Map<Service, ServiceResponseDTO>(entity));
             }
-            catch (DatabaseException)
-            {
-                throw;
-            }
-            catch (ValidationException)
+            catch (DefaultException)
             {
                 throw;
             }
