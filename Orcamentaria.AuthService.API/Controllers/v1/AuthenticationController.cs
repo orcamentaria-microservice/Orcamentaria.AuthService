@@ -23,6 +23,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         {
             try
             {
+                //Reset Path
                 return _service.AuthenticateService(clientId, clientSecret);
             }
             catch (Exception)
@@ -36,6 +37,9 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         {
             try
             {
+                //Reset Path
+                HttpContext.Request.Path = "/api/v1/Authentication/User/Authenticate";
+
                 return _service.AuthenticateUser(email, password);
             }
             catch (Exception)
@@ -49,7 +53,10 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         {
             try
             {
-                return _service.RefreshTokenUser(dto.RefreshToken);
+                //Reset Path
+                HttpContext.Request.Path = "/api/v1/Authentication/User/RefreshToken";
+
+                return await _service.RefreshTokenUser(dto.RefreshToken);
             }
             catch (Exception)
             {
