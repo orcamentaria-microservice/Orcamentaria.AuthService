@@ -2,6 +2,7 @@
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Exceptions;
+using Orcamentaria.Lib.Domain.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -14,6 +15,14 @@ namespace Orcamentaria.AuthService.Application.Services
         private readonly string _private_key_service = "private_key_service.pem";
         private readonly string _private_key_user = "private_key_user.pem";
         private readonly string _public_key_user = "public_key_user.pem";
+        private readonly string projectName = "Orcamentaria.AuthService.API";
+        
+        private readonly IRsaService _rsaService;
+
+        public TokenService(IRsaService rsaService)
+        {
+            _rsaService = rsaService;
+        }
 
         public Dictionary<string, string> GenerateSecrets(Service service)
         {
@@ -43,14 +52,11 @@ namespace Orcamentaria.AuthService.Application.Services
         {
             try
             {
-                var privateKey = GetKey(_private_key_service);
-                var rsa = RSA.Create();
-                rsa.ImportFromPem(privateKey.ToCharArray());
+                var rsa = _rsaService.GenerateRsaSecurityKey(projectName, _private_key_service);
 
-                var credentials = new SigningCredentials(new RsaSecurityKey(rsa)
-                {
-                    KeyId = "auth-service-key-1"
-                }, SecurityAlgorithms.RsaSha256);
+                rsa.KeyId = "auth-service-key-1";
+
+                var credentials = new SigningCredentials(rsa, SecurityAlgorithms.RsaSha256);
 
                 List<Claim> claims =
                 [
@@ -83,14 +89,11 @@ namespace Orcamentaria.AuthService.Application.Services
         public string GenerateTokenUser(User user)
         {
             try {
-                var privateKey = GetKey(_private_key_user);
-                var rsa = RSA.Create();
-                rsa.ImportFromPem(privateKey.ToCharArray());
+                var rsa = _rsaService.GenerateRsaSecurityKey(projectName, _private_key_user);
 
-                var credentials = new SigningCredentials(new RsaSecurityKey(rsa)
-                {
-                    KeyId = "auth-user-key-1"
-                }, SecurityAlgorithms.RsaSha256);
+                rsa.KeyId = "auth-user-key-1";
+
+                var credentials = new SigningCredentials(rsa, SecurityAlgorithms.RsaSha256);
 
                 List<Claim> claims =
                 [
@@ -128,11 +131,9 @@ namespace Orcamentaria.AuthService.Application.Services
         {
             try
             {
-                var privateKey = GetKey(_private_key_user);
-                var rsa = RSA.Create();
-                rsa.ImportFromPem(privateKey.ToCharArray());
+                var rsa = _rsaService.GenerateRsaSecurityKey(projectName, _private_key_user);
 
-                var credentials = new SigningCredentials(new RsaSecurityKey(rsa), SecurityAlgorithms.RsaSha256);
+                var credentials = new SigningCredentials(rsa, SecurityAlgorithms.RsaSha256);
 
                 List<Claim> claims =
                 [
@@ -162,13 +163,11 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public long ValidateRefreshToken(string refreshToken)
+        public async Task<long> ValidateRefreshToken(string refreshToken)
         {
             try
             {
-                var publicKey = GetKey(_public_key_user);
-                using var rsa = RSA.Create();
-                rsa.ImportFromPem(publicKey.ToCharArray());
+                var rsa = _rsaService.GenerateRsaSecurityKey(projectName, _private_key_user);
 
                 var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -179,61 +178,31 @@ namespace Orcamentaria.AuthService.Application.Services
                     ValidateAudience = true,
                     ValidAudience = "orcamentaria.user",
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new RsaSecurityKey(rsa),
+                    IssuerSigningKey = rsa,
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.FromMinutes(5),
                     RequireExpirationTime = true,
                     ValidateTokenReplay = false
                 };
 
-                var principal = tokenHandler.ValidateToken(refreshToken, validationParameters, out var validatedToken);
-                var userIdClaim = principal.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
-                var tokenType = principal.Claims.FirstOrDefault(c => c.Type == "TokenType")?.Value;
+                var tokenResult = await tokenHandler.ValidateTokenAsync(refreshToken, validationParameters);
 
-                if (tokenType != "RefreshToken")
+                if (!tokenResult.IsValid)
+                    throw new UnauthorizedException("Token inválido");
+
+                var userIdClaim = tokenResult.Claims.FirstOrDefault(c => c.Key == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+                var tokenType = tokenResult.Claims.FirstOrDefault(c => c.Key == "TokenType").Value;
+
+                if (!tokenType.Equals("RefreshToken"))
                     throw new UnauthorizedAccessException("Token inválido.");
 
                 if (userIdClaim is null)
                     throw new UnauthorizedAccessException("Token inválido.");
 
-                long.TryParse(userIdClaim.Value, out var userId);
+                if(!long.TryParse(userIdClaim.ToString(), out var userId))
+                    throw new UnauthorizedAccessException("Token inválido.");
 
                 return userId;
-            }
-            catch (DefaultException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new UnexpectedException(ex.Message, ex);
-            }
-        }
-
-        private string GetKey(string filename)
-        {
-            try
-            {
-                var assembly = AppDomain.CurrentDomain.GetAssemblies()
-                    .FirstOrDefault(a => a.GetName().Name == "Orcamentaria.AuthService.API");
-
-                if (assembly is null)
-                    throw new ConfigurationException("Projeto 'Orcamentaria.AuthService.API' não encontrado.");
-
-                var resourceName = assembly.GetManifestResourceNames()
-                                           .FirstOrDefault(name => name.EndsWith(filename));
-
-                if (resourceName is null)
-                    throw new ConfigurationException("Faltando arquivo de configuração.");
-
-                using var stream = assembly.GetManifestResourceStream(resourceName);
-
-                if (stream is null)
-                    throw new ConfigurationException("Faltando arquivo de configuração.");
-
-                using var reader = new StreamReader(stream);
-
-                return reader.ReadToEnd();
             }
             catch (DefaultException)
             {

@@ -7,6 +7,6 @@ namespace Orcamentaria.AuthService.Domain.Services
     {
         Response<AuthenticationUserResponseDTO> AuthenticateUser(string email, string password);
         Response<AuthenticationServiceResponseDTO> AuthenticateService(string clientId, string clientSecret);
-        Response<AuthenticationUserResponseDTO> RefreshTokenUser(string refreshToken);
+        Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUser(string refreshToken);
     }
 }

@@ -8,6 +8,6 @@ namespace Orcamentaria.AuthService.Domain.Services
         string GenerateRefreshTokenUser(User user);
         string GenerateTokenService(Service service);
         Dictionary<string, string> GenerateSecrets(Service service);
-        long ValidateRefreshToken(string refreshToken);
+        Task<long> ValidateRefreshToken(string refreshToken);
     }
 }

@@ -61,7 +61,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 var user = _userService.GetUserByCredential(email);
 
                 if (user is null)
-                    throw new UnauthorizedException($"Email e/ou senha inválidos.");
+                    throw new InfoException($"Email e/ou senha inválidos.", ErrorCodeEnum.NotFound);
 
                 if(!_passwordService.PasswordIsValid(password, user.Password))
                     throw new InfoException($"Email e/ou senha inválidos.", ErrorCodeEnum.NotFound);
@@ -88,12 +88,12 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Response<AuthenticationUserResponseDTO> RefreshTokenUser(string refreshToken)
+        public async Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUser(string refreshToken)
         {
-            var userId = _tokenService.ValidateRefreshToken(refreshToken);
-
             try
             {
+                var userId = await _tokenService.ValidateRefreshToken(refreshToken);
+
                 var user = _userService.GetById(userId);
 
                 if (user is null)

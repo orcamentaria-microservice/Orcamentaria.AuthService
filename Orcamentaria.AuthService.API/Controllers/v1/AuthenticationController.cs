@@ -24,6 +24,8 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             try
             {
                 //Reset Path
+                HttpContext.Request.Path = "/api/v1/Authentication/Service/Authenticate";
+
                 return _service.AuthenticateService(clientId, clientSecret);
             }
             catch (Exception)
@@ -49,7 +51,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         }
 
         [HttpPost("User/RefreshToken", Name = "UserRefreshToken")]
-        public Response<AuthenticationUserResponseDTO> RefreshTokenUser([FromBody] UserRefreshToken dto)
+        public async Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUser([FromBody] UserRefreshToken dto)
         {
             try
             {

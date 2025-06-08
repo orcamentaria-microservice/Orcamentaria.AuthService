@@ -19,6 +19,8 @@ using Orcamentaria.Lib.Domain.Models.Configurations;
 using Orcamentaria.Lib.Infrastructure.Middlewares;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc;
+using Orcamentaria.Lib.Domain.Services;
 
 namespace Orcamentaria.AuthService.API
 {
@@ -39,9 +41,6 @@ namespace Orcamentaria.AuthService.API
             CommonDI.ResolveCommonServices(_serviceName, _apiVersion, services, Configuration);
 
             CommonDI.AddServiceRegistryHosted(services, Configuration);
-
-            //services.Configure<ServiceConfiguration>(Configuration.GetSection("ServiceConfiguration"));
-            //services.AddHostedService<ServiceRegistryHostedServiceTest>();
 
             services.AddDbContext<MySqlContext>(options =>
                 options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Orcamentaria.AuthService.Domain.Services;
+using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models.Configurations;
 using Orcamentaria.Lib.Domain.Providers;
 
@@ -21,11 +22,22 @@ namespace Orcamentaria.AuthService.Application.Providers
 
         public async Task<string> GetTokenServiceAsync()
         {
-            var result = _authenticationService.AuthenticateService(
-                _serviceConfiguration.Value.ClientId,
-                _serviceConfiguration.Value.ClientSecret);
+            try
+            {
+                var result = _authenticationService.AuthenticateService(
+                    _serviceConfiguration.Value.ClientId,
+                    _serviceConfiguration.Value.ClientSecret);
 
-            return result.Data.Token;
+                return result.Data.Token;
+            }
+            catch (DefaultException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
         }
     }
 }
