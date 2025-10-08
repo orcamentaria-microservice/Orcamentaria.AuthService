@@ -1,26 +1,23 @@
-﻿using Orcamentaria.Lib.Domain.Contexts;
-using Orcamentaria.AuthService.Infrastructure.Contexts;
-using Microsoft.EntityFrameworkCore;
-using Orcamentaria.AuthService.Domain.Repositories;
-using Orcamentaria.AuthService.Infrastructure.Repositories;
-using Orcamentaria.AuthService.Domain.Mappers;
-using Orcamentaria.Lib.Domain.Validators;
-using Orcamentaria.AuthService.Domain.Models;
-using Orcamentaria.AuthService.Application.Validators;
-using Orcamentaria.AuthService.Domain.Services;
-using Orcamentaria.AuthService.Application.Services;
-using Orcamentaria.Lib.Infrastructure.Contexts;
-using Orcamentaria.Lib.Infrastructure;
-using Orcamentaria.Lib.Domain.Providers;
+﻿using Microsoft.EntityFrameworkCore;
 using Orcamentaria.AuthService.Application.Providers;
-using Orcamentaria.Lib.Application.HostedService;
-using System.Configuration;
-using Orcamentaria.Lib.Domain.Models.Configurations;
-using Orcamentaria.Lib.Infrastructure.Middlewares;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Mvc;
+using Orcamentaria.AuthService.Application.Services;
+using Orcamentaria.AuthService.Application.Validators;
+using Orcamentaria.AuthService.Domain.Mappers;
+using Orcamentaria.AuthService.Domain.Models;
+using Orcamentaria.AuthService.Domain.Repositories;
+using Orcamentaria.AuthService.Domain.Services;
+using Orcamentaria.AuthService.Infrastructure.Configurations;
+using Orcamentaria.AuthService.Infrastructure.Contexts;
+using Orcamentaria.AuthService.Infrastructure.Repositories;
+using Orcamentaria.Lib.Application.HostedServices;
+using Orcamentaria.Lib.Application.Services;
+using Orcamentaria.Lib.Domain.Contexts;
+using Orcamentaria.Lib.Domain.Providers;
 using Orcamentaria.Lib.Domain.Services;
+using Orcamentaria.Lib.Domain.Validators;
+using Orcamentaria.Lib.Infrastructure;
+using Orcamentaria.Lib.Infrastructure.Contexts;
+using System.Configuration;
 
 namespace Orcamentaria.AuthService.API
 {
@@ -38,37 +35,45 @@ namespace Orcamentaria.AuthService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            CommonDI.ResolveCommonServices(_serviceName, _apiVersion, services, Configuration);
-
             CommonDI.AddServiceRegistryHosted(services, Configuration);
 
-            services.AddDbContext<MySqlContext>(options =>
-                options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
+            CommonDI.ResolveCommonServices(_serviceName, _apiVersion, services, Configuration, () =>
+            {
+                services.AddDbContext<MySqlContext>(options =>
+                    options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddScoped<IUserAuthContext, UserAuthContext>();
+                services.AddScoped<IUserAuthContext, UserAuthContext>();
 
-            services.AddAutoMapper(
-                typeof(PermissionMapper),
-                typeof(ServiceMapper),
-                typeof(UserMapper));
+                services.AddAutoMapper(
+                    typeof(PermissionMapper),
+                    typeof(ServiceMapper),
+                    typeof(UserMapper));
 
-            services.AddScoped<IValidatorEntity<User>, UserValidator>();
-            services.AddScoped<IValidatorEntity<Permission>, PermissionValidator>();
-            services.AddScoped<IValidatorEntity<Service>, ServiceValidator>();
-            services.AddScoped<IValidatorEntity<User>, UserValidator>();
+                services.AddScoped<IValidatorEntity<User>, UserValidator>();
+                services.AddScoped<IValidatorEntity<Permission>, PermissionValidator>();
+                services.AddScoped<IValidatorEntity<Service>, ServiceValidator>();
+                services.AddScoped<IValidatorEntity<User>, UserValidator>();
 
-            services.AddScoped<IPermissionRepository, PermissionRepository>();
-            services.AddScoped<IServiceRepository, ServiceRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
+                services.AddScoped<IPermissionRepository, PermissionRepository>();
+                services.AddScoped<IServiceRepository, ServiceRepository>();
+                services.AddScoped<IUserRepository, UserRepository>();
 
-            services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IPasswordService, PasswordService>();
-            services.AddScoped<IPermissionService, PermissionService>();
-            services.AddScoped<IServiceService, ServiceService>();
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IUserService, UserService>();
+                services.AddScoped<IAuthenticationService, AuthenticationService>();
+                services.AddScoped<IPasswordService, PasswordService>();
+                services.AddScoped<IPermissionService, PermissionService>();
+                services.AddScoped<IServiceService, ServiceService>();
+                services.AddScoped<ITokenService, TokenService>();
+                services.AddScoped<IUserService, UserService>();
 
-            services.AddScoped<ITokenProvider, TokenProvider>();
+                services.AddScoped<ITokenProvider, TokenProvider>();
+
+                //services.AddScoped<IHttpClientService, HttpClientServiceTeste>();
+            });
+
+            //    services.AddScoped<IServiceRegistryService, ServiceRegistryServiceTeste>();
+            //    services.AddScoped<IHttpClientService, HttpClientServiceTeste>();
+            //services.Configure<ServiceConfiguration>(Configuration.GetSection("ServiceConfiguration"));
+            //services.AddHostedService<ServiceRegistryHostedServiceTeste>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
