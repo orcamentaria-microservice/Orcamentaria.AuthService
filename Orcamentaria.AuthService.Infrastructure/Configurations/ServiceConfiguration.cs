@@ -15,6 +15,13 @@ namespace Orcamentaria.AuthService.Infrastructure.Configurations
             builder.Property(p => p.ClientId).HasColumnName("CLIENT_ID");
             builder.Property(p => p.ClientSecret).HasColumnName("CLIENT_SECRET");
             builder.Property(p => p.Active).HasColumnName("ACTIVE");
+            builder.Ignore(p => p.Bootstraps);
+
+            builder.HasMany(p => p.Bootstraps)
+                 .WithOne()
+                 .HasForeignKey(p => p.ServiceId)
+                 .HasConstraintName("fk_T_BOOTSTRAP_T_SERVICE")
+                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

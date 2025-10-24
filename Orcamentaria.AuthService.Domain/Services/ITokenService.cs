@@ -1,13 +1,8 @@
-﻿using Orcamentaria.AuthService.Domain.Models;
-
-namespace Orcamentaria.AuthService.Domain.Services
+﻿namespace Orcamentaria.AuthService.Domain.Services
 {
-    public interface ITokenService
+    public interface ITokenService<T>
     {
-        string GenerateTokenUser(User user);
-        string GenerateRefreshTokenUser(User user);
-        string GenerateTokenService(Service service);
-        Dictionary<string, string> GenerateSecrets(Service service);
-        Task<long> ValidateRefreshToken(string refreshToken);
+        string Generate(T data);
+        Task<long> Validate(string token);
     }
 }

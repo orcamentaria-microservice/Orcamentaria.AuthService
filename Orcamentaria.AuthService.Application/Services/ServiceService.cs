@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.DependencyInjection;
 using Orcamentaria.AuthService.Domain.DTOs.Service;
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
@@ -14,18 +15,18 @@ namespace Orcamentaria.AuthService.Application.Services
     public class ServiceService : IServiceService
     {
         private readonly IServiceRepository _repository;
-        private readonly ITokenService _tokenService;
+        private readonly IServiceProvider _provider;
         private readonly IValidatorEntity<Service> _validator;
         private readonly IMapper _mapper;
 
         public ServiceService(
-            IServiceRepository repository, 
-            ITokenService tokenService,
+            IServiceRepository repository,
+            IServiceProvider provider,
             IValidatorEntity<Service> validator,
             IMapper mapper)
         {
             _repository = repository;
-            _tokenService = tokenService;
+            _provider = provider;
             _validator = validator;
             _mapper = mapper;
         }
@@ -77,12 +78,16 @@ namespace Orcamentaria.AuthService.Application.Services
         {
             try
             {
+                var clientIdTokenService = _provider.GetRequiredKeyedService<ITokenService<Service>>("clientIdToken");
+                var clientSecretTokenService = _provider.GetRequiredKeyedService<ITokenService<Service>>("clientSecretToken");
+
                 var service = _mapper.Map<ServiceInsertDTO, Service>(dto);
 
-                var keys = _tokenService.GenerateSecrets(service);
+                var clientId = clientIdTokenService.Generate(service);
+                var clientSecret = clientSecretTokenService.Generate(service);
 
-                service.ClientId = keys["clientId"];
-                service.ClientSecret = keys["clientSecret"];
+                service.ClientId = clientId;
+                service.ClientSecret = clientSecret;
 
                 var result = _validator.ValidateBeforeInsert(service);
 
@@ -145,22 +150,26 @@ namespace Orcamentaria.AuthService.Application.Services
         {
             try
             {
+                var clientIdTokenService = _provider.GetRequiredKeyedService<ITokenService<Service>>("clientIdToken");
+                var clientSecretTokenService = _provider.GetRequiredKeyedService<ITokenService<Service>>("clientSecretToken");
+
                 var service = _repository.GetById(id);
 
                 if (service is null)
                     throw new InfoException($"O {id} não foi encontrado", ErrorCodeEnum.NotFound);
 
-                var keys = _tokenService.GenerateSecrets(service);
+                var clientId = clientIdTokenService.Generate(service);
+                var clientSecret = clientSecretTokenService.Generate(service);
 
-                await _repository.UpdateCredentials(id, keys["clientId"], keys["clientSecret"]);
+                await _repository.UpdateCredentials(id, clientId, clientSecret);
 
                 return new Response<ServiceResponseDTO>(
                     new ServiceResponseDTO
                     {
                         Id = id,
                         Name = service.Name,
-                        ClientId = keys["clientId"],
-                        ClientSecret = keys["clientSecret"] 
+                        ClientId = clientId,
+                        ClientSecret = clientSecret
                     });
             }
             catch (DatabaseException)

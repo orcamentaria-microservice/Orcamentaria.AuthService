@@ -18,7 +18,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             _service = service;
         }
 
-        [HttpPost("Service/Authenticate/{clientId}/{clientSecret}", Name = "ServiceAuthenticate")]
+        [HttpPost("Service/Authenticate/{clientId}/{clientSecret}", Name = "AuthenticateService")]
         public Response<AuthenticationServiceResponseDTO> AuthenticateService(string clientId, string clientSecret)
         {
             try
@@ -34,7 +34,23 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [HttpPost("User/Authenticate/{email}/{password}", Name = "UserAuthenticate")]
+        [HttpPost("Bootstrap/Authenticate/{bootstrapSecret}", Name = "AuthenticateBootstrap")]
+        public async Task<Response<AuthenticationServiceResponseDTO>> AuthenticateBootstrap(string bootstrapSecret)
+        {
+            try
+            {
+                //Reset Path
+                HttpContext.Request.Path = "/api/v1/Authentication/Service/Authenticate/Bootstrap";
+
+                return await _service.AuthenticateWithBootstrapSecret(bootstrapSecret);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        [HttpPost("User/Authenticate/{email}/{password}", Name = "AuthenticateUser")]
         public Response<AuthenticationUserResponseDTO> AuthenticateUser(string email, string password)
         {
             try
@@ -50,7 +66,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [HttpPost("User/RefreshToken", Name = "UserRefreshToken")]
+        [HttpPost("User/RefreshToken", Name = "AuthenticateRefreshTokenUser")]
         public async Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUser([FromBody] UserRefreshToken dto)
         {
             try

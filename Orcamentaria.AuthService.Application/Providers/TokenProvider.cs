@@ -20,7 +20,7 @@ namespace Orcamentaria.AuthService.Application.Providers
             _serviceConfiguration = serviceConfiguration;
         }
 
-        public async Task<string> GetTokenServiceAsync()
+        public async Task<string> GetTokenAsync()
         {
             try
             {

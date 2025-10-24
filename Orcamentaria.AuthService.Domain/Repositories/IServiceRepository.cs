@@ -5,6 +5,7 @@ namespace Orcamentaria.AuthService.Domain.Repositories
     public interface IServiceRepository
     {
         Service? GetById(long id);
+        Service? GetByName(string name);
         Service? GetByCredentials(string clientId, string clientSecret);
         Task<Service> Insert(Service service);
         Task<Service> Update(long id, Service address);

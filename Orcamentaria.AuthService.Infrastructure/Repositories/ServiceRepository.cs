@@ -39,6 +39,18 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
             }
         }
 
+        public Service? GetByName(string name)
+        {
+            try
+            {
+                return _dbContext.Services.FirstOrDefault(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+            }
+            catch (Exception ex)
+            {
+                throw new DatabaseException(ex.Message, ex);
+            }
+        }
+
         public async Task<Service> Insert(Service service)
         {
             try

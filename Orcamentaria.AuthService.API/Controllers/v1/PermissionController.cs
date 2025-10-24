@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Orcamentaria.AuthService.Domain.DTOs.Permissions;
+using Orcamentaria.AuthService.Domain.DTOs.Permission;
 using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Models;
@@ -19,7 +19,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             _service = service;
         }
 
-        [Authorize(Roles = "PERMISSION:READ")]
+        [Authorize(Roles = "MASTER,PERMISSION:READ")]
         [HttpGet("GetById/{id}", Name = "PermissionGetById")]
         public Response<PermissionResponseDTO> GetById(long id)
         {
@@ -33,7 +33,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "PERMISSION:READ")]
+        [Authorize(Roles = "MASTER,PERMISSION:READ")]
         [HttpGet("GetByResource/{resource}", Name = "PermissionGetByResource")]
         public Response<IEnumerable<PermissionResponseDTO>> GetByResource(ResourceEnum resource)
         {
@@ -47,7 +47,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "PERMISSION:READ")]
+        [Authorize(Roles = "MASTER,PERMISSION:READ")]
         [HttpGet("GetByType/{type}", Name = "PermissionGetByType")]
         public Response<IEnumerable<PermissionResponseDTO>> GetByType(PermissionTypeEnum type)
         {
@@ -61,7 +61,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "PERMISSION:CREATE")]
+        [Authorize(Roles = "MASTER,PERMISSION:CREATE")]
         [HttpPost(Name = "PermissionInsert")]
         public async Task<Response<PermissionResponseDTO>> Insert([FromBody] PermissionInsertDTO dto)
         {
@@ -75,7 +75,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "PERMISSION:UPDATE")]
+        [Authorize(Roles = "MASTER,PERMISSION:UPDATE")]
         [HttpPut("{id}", Name = "PermissionUpdate")]
         public async Task<Response<PermissionResponseDTO>> Update(long id, [FromBody] PermissionUpdateDTO dto)
         {

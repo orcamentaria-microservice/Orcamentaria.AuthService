@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Orcamentaria.AuthService.Application.Providers;
 using Orcamentaria.AuthService.Application.Services;
 using Orcamentaria.AuthService.Application.Validators;
@@ -6,18 +7,13 @@ using Orcamentaria.AuthService.Domain.Mappers;
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Domain.Services;
-using Orcamentaria.AuthService.Infrastructure.Configurations;
 using Orcamentaria.AuthService.Infrastructure.Contexts;
 using Orcamentaria.AuthService.Infrastructure.Repositories;
-using Orcamentaria.Lib.Application.HostedServices;
-using Orcamentaria.Lib.Application.Services;
 using Orcamentaria.Lib.Domain.Contexts;
 using Orcamentaria.Lib.Domain.Providers;
-using Orcamentaria.Lib.Domain.Services;
 using Orcamentaria.Lib.Domain.Validators;
 using Orcamentaria.Lib.Infrastructure;
 using Orcamentaria.Lib.Infrastructure.Contexts;
-using System.Configuration;
 
 namespace Orcamentaria.AuthService.API
 {
@@ -31,10 +27,17 @@ namespace Orcamentaria.AuthService.API
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; set; }
 
         public void ConfigureServices(IServiceCollection services)
         {
+            Configuration = new Infrastructure.Initializers.ConfigurationBagInitializer(_serviceName)
+                .InitializeAsync(Configuration)
+                .GetAwaiter()
+                .GetResult();
+
+            services.Replace(ServiceDescriptor.Singleton<IConfiguration>(Configuration));
+
             CommonDI.AddServiceRegistryHosted(services, Configuration);
 
             CommonDI.ResolveCommonServices(_serviceName, _apiVersion, services, Configuration, () =>
@@ -57,23 +60,25 @@ namespace Orcamentaria.AuthService.API
                 services.AddScoped<IPermissionRepository, PermissionRepository>();
                 services.AddScoped<IServiceRepository, ServiceRepository>();
                 services.AddScoped<IUserRepository, UserRepository>();
+                services.AddScoped<IBootstrapRepository, BootstrapRepository>();
 
                 services.AddScoped<IAuthenticationService, AuthenticationService>();
                 services.AddScoped<IPasswordService, PasswordService>();
                 services.AddScoped<IPermissionService, PermissionService>();
                 services.AddScoped<IServiceService, ServiceService>();
-                services.AddScoped<ITokenService, TokenService>();
                 services.AddScoped<IUserService, UserService>();
+                services.AddScoped<IBootstrapService, BootstrapService>();
+
+                services.AddKeyedScoped<ITokenService<User>, UserTokenService>("userToken");
+                services.AddKeyedScoped<ITokenService<User>, UserRefreshTokenService>("userRefreshToken");
+                services.AddKeyedScoped<ITokenService<Service>, ServiceTokenService>("serviceToken");
+                services.AddKeyedScoped<ITokenService<Service>, ClientIdTokenService>("clientIdToken");
+                services.AddKeyedScoped<ITokenService<Service>, ClientSecretTokenService>("clientSecretToken");
+                services.AddKeyedScoped<ITokenService<Bootstrap>, BootstrapSecretTokenService>("bootstrapSecretToken");
+                services.AddKeyedScoped<ITokenService<Service>, BootstrapTokenService>("bootstrapToken");
 
                 services.AddScoped<ITokenProvider, TokenProvider>();
-
-                //services.AddScoped<IHttpClientService, HttpClientServiceTeste>();
             });
-
-            //    services.AddScoped<IServiceRegistryService, ServiceRegistryServiceTeste>();
-            //    services.AddScoped<IHttpClientService, HttpClientServiceTeste>();
-            //services.Configure<ServiceConfiguration>(Configuration.GetSection("ServiceConfiguration"));
-            //services.AddHostedService<ServiceRegistryHostedServiceTeste>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

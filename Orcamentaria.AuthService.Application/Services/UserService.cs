@@ -199,7 +199,7 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
         
-        public async Task<Response<UserResponseDTO>> AddPermission(long userId, IEnumerable<long> permissionsId)
+        public async Task<Response<UserResponseDTO>> AddPermission(long userId, UserAddPermissionsDTO dto)
         {
             try
             {
@@ -208,7 +208,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 var addPermissions = new List<Permission>();
 
-                foreach (var permissionId in permissionsId)
+                foreach (var permissionId in dto.PermissionIds)
                 {
                     var permission = _permissionService.GetPermission(permissionId);
 
@@ -232,7 +232,7 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<UserResponseDTO>> RemovePermission(long userId, IEnumerable<long> permissionsId)
+        public async Task<Response<UserResponseDTO>> RemovePermission(long userId, UserRemovePermissionsDTO dto)
         {
             try
             {
@@ -241,7 +241,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 var removePermissions = new List<Permission>();
 
-                foreach (var permissionId in permissionsId)
+                foreach (var permissionId in dto.PermissionIds)
                 {
                     var permission = _permissionService.GetPermission(permissionId);
                 

@@ -1,6 +1,6 @@
 ﻿using Orcamentaria.Lib.Domain.Enums;
 
-namespace Orcamentaria.AuthService.Domain.DTOs.Permissions
+namespace Orcamentaria.AuthService.Domain.DTOs.Permission
 {
     public class PermissionResponseDTO
     {

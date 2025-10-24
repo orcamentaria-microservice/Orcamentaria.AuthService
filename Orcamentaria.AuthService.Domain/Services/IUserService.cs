@@ -13,7 +13,7 @@ namespace Orcamentaria.AuthService.Domain.Services
         Task<Response<UserResponseDTO>> Insert(UserInsertDTO dto);
         Task<Response<UserResponseDTO>> Update(long id, UserUpdateDTO dto);
         Task<Response<UserResponseDTO>> UpdatePassword(long id, UserUpdatePasswordDTO dto);
-        Task<Response<UserResponseDTO>> AddPermission(long userId, IEnumerable<long> permissionsId);
-        Task<Response<UserResponseDTO>> RemovePermission(long userId, IEnumerable<long> permissionsId);
+        Task<Response<UserResponseDTO>> AddPermission(long userId, UserAddPermissionsDTO dto);
+        Task<Response<UserResponseDTO>> RemovePermission(long userId, UserRemovePermissionsDTO dto);
     }
 }

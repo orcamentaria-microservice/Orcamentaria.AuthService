@@ -20,14 +20,28 @@ namespace Orcamentaria.AuthService.Application.Validators
         public PermissionValidator()
         {
             RuleFor(x => x.Resource)
-                .NotEmpty().WithMessage("O {PropertyName} é obrigatório.")
+                .NotNull().WithMessage("O {PropertyName} é obrigatório.")
                 .Must(x => Enum.IsDefined(typeof(ResourceEnum), x)).WithMessage("O {PropertyName} é inválido.");
             RuleFor(x => x.Description)
                 .NotNull().WithMessage("O {PropertyName} é obrigatório.")
                 .MaximumLength(150).WithMessage("O tamanho máximo da {PropertyName} é de {MaxLength} caracteres.");
-            RuleFor(x => x.Type)
-                .NotNull().WithMessage("O {PropertyName} é obrigatório.")
-                .Must(x => Enum.IsDefined(typeof(PermissionTypeEnum), x)).WithMessage("O {PropertyName} é inválido.");
+            RuleFor(x => x)
+                .Must(x => 
+                {
+                    if (x.Resource == ResourceEnum.MASTER)
+                        return true;
+
+                    return x.Type == 0;
+                })
+                .WithMessage("O Type é obrigatório.")
+                .Must(x =>
+                {
+                    if (x.Resource == ResourceEnum.MASTER)
+                        return true;
+
+                    return Enum.IsDefined(typeof(PermissionTypeEnum), x.Type);
+                })
+                .WithMessage("O Type é inválido.");
             RuleFor(x => x.IncrementalPermission)
                 .MaximumLength(50).WithMessage("O tamanho máximo da {PropertyName} é de {MaxLength} caracteres.")
                 .Must(x => !x.Contains(" ")).WithMessage("O {PropertyName} não pode conter espaços, ex: PERMISSAO GERAL.");

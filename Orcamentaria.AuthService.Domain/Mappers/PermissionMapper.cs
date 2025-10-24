@@ -1,6 +1,6 @@
 ﻿using Orcamentaria.AuthService.Domain.Models;
 using AutoMapper;
-using Orcamentaria.AuthService.Domain.DTOs.Permissions;
+using Orcamentaria.AuthService.Domain.DTOs.Permission;
 
 namespace Orcamentaria.AuthService.Domain.Mappers
 {

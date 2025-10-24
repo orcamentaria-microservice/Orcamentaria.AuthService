@@ -18,7 +18,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             _service = service;
         }
 
-        [Authorize(Roles = "USER:READ")]
+        [Authorize(Roles = "MASTER,USER:READ")]
         [HttpGet("GetByCompanyId", Name = "UserGetByCompanyId")]
         public Response<IEnumerable<UserResponseDTO>> GetByCompanyId(long id)
         {
@@ -32,7 +32,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "USER:READ")]
+        [Authorize(Roles = "MASTER,USER:READ")]
         [HttpGet("GetByEmail/{email}", Name = "UserGetByEmail")]
         public Response<UserResponseDTO> GetByEmail(string email)
         {
@@ -46,7 +46,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "USER:CREATE")]
+        [Authorize(Roles = "MASTER,USER:CREATE")]
         [HttpPost(Name = "UserInsert")]
         public async Task<Response<UserResponseDTO>> Insert([FromBody] UserInsertDTO dto)
         {
@@ -60,7 +60,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "USER:UPDATE")]
+        [Authorize(Roles = "MASTER,USER:UPDATE")]
         [HttpPut("{id}", Name = "UserUpdate")]
         public async Task<Response<UserResponseDTO>> Update(long id, [FromBody] UserUpdateDTO dto)
         {
@@ -74,13 +74,13 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "USER:UPDATE:ALTERPERMISSION")]
+        [Authorize(Roles = "MASTER,USER:UPDATE:ALTERPERMISSION")]
         [HttpPut("AddPermission/{id}", Name = "UserAddPermission")]
-        public async Task<Response<UserResponseDTO>> AddPermission(long id, [FromBody] IEnumerable<long> permissionsId)
+        public async Task<Response<UserResponseDTO>> AddPermission(long id, [FromBody] UserAddPermissionsDTO dto)
         {
             try
             {
-                return await _service.AddPermission(id, permissionsId);
+                return await _service.AddPermission(id, dto);
             }
             catch (Exception)
             {
@@ -88,13 +88,13 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "USER:UPDATE:ALTERPERMISSION")]
+        [Authorize(Roles = "MASTER,USER:UPDATE:ALTERPERMISSION")]
         [HttpPut("RemovePermission/{id}", Name = "UserRemovePermission")]
-        public async Task<Response<UserResponseDTO>> RemovePermission(long id, [FromBody] dynamic permissionsId)
+        public async Task<Response<UserResponseDTO>> RemovePermission(long id, [FromBody] UserRemovePermissionsDTO dto)
         {
             try
             {
-                return await _service.RemovePermission(id, permissionsId);
+                return await _service.RemovePermission(id, dto);
             }
             catch (Exception)
             {
@@ -102,7 +102,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "USER:UPDATE")]
+        [Authorize(Roles = "MASTER,USER:UPDATE")]
         [HttpPut("UpdatePassword/{id}", Name = "UserUpdatePassword")]
         public async Task<Response<UserResponseDTO>> UpdatePassword(long id, [FromBody] UserUpdatePasswordDTO dto)
         {

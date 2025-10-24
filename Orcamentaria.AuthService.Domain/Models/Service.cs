@@ -7,5 +7,6 @@
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
         public bool Active { get; set; } = true;
+        public IEnumerable<Bootstrap> Bootstraps { get; set; }
     }
 }

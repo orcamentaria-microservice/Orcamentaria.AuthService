@@ -18,7 +18,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             _service = service;
         }
 
-        [Authorize(Roles = "SERVICE:READ")]
+        [Authorize(Roles = "MASTER,SERVICE:READ")]
         [HttpGet("GetById/{id}", Name = "ServiceGetById")]
         public Response<ServiceResponseDTO> GetById(long id)
         {
@@ -32,7 +32,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "SERVICE:CREATE")]
+        [Authorize(Roles = "MASTER,SERVICE:CREATE")]
         [HttpPost(Name = "ServiceInsert")]
         public async Task<Response<ServiceResponseDTO>> Insert([FromBody] ServiceInsertDTO dto)
         {
@@ -46,7 +46,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "SERVICE:UPDATE")]
+        [Authorize(Roles = "MASTER,SERVICE:UPDATE")]
         [HttpPut("{id}", Name = "ServiceUpdate")]
         public async Task<Response<ServiceResponseDTO>> Update(long id, [FromBody] ServiceUpdateDTO dto)
         {
@@ -60,7 +60,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "SERVICE:UPDATE")]
+        [Authorize(Roles = "MASTER,SERVICE:UPDATE")]
         [HttpPut("UpdateCredentials/{id}", Name = "ServiceUpdateCredentials")]
         public async Task<Response<ServiceResponseDTO>> UpdateCredentials(long id)
         {

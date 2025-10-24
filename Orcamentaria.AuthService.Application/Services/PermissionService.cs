@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Orcamentaria.AuthService.Domain.DTOs.Permissions;
+using Orcamentaria.AuthService.Domain.DTOs.Permission;
 using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
