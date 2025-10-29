@@ -1,4 +1,4 @@
-﻿using Orcamentaria.APIGetaway.Domain.DTOs.Authentication;
+﻿using Orcamentaria.Lib.Domain.DTOs.Authentication;
 using Orcamentaria.Lib.Domain.Models;
 
 namespace Orcamentaria.AuthService.Domain.Services

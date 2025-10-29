@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Orcamentaria.APIGetaway.Domain.DTOs.Authentication;
+using Orcamentaria.Lib.Domain.DTOs.Authentication;
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Enums;

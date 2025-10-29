@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Orcamentaria.APIGetaway.Domain.DTOs.Authentication;
+using Orcamentaria.Lib.Domain.DTOs.Authentication;
 using Orcamentaria.AuthService.Domain.DTOs.User;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Models;
