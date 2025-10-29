@@ -108,6 +108,7 @@ Defina as variáveis/`appsettings` conforme seu ambiente. Exemplos de chaves:
 
 ---
 
-## 👤 Autor
+## ✨ Autor
 
-**Marcelo Fernando** – Arquitetura & Backend (Auth/Segurança)
+**Marcelo Fernando**  
+Desenvolvedor Fullstack | Arquitetura de Microserviços
