@@ -1,14 +1,9 @@
-﻿using Orcamentaria.Lib.Domain.Enums;
-using Orcamentaria.AuthService.Domain.Models;
+﻿using Orcamentaria.AuthService.Domain.Models;
+using Orcamentaria.Lib.Domain.Repositories;
 
 namespace Orcamentaria.AuthService.Domain.Repositories
 {
-    public interface IPermissionRepository
+    public interface IPermissionRepository : IBasicRepository<Permission>
     {
-        Permission? GetById(long id);
-        IEnumerable<Permission> GetByResource(ResourceEnum resource);
-        IEnumerable<Permission> GetByType(PermissionTypeEnum type);
-        Task<Permission> Insert(Permission permission);
-        Task<Permission> Update(long id, Permission permission);
     }
 }

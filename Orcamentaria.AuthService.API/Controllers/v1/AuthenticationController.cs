@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Orcamentaria.Lib.Domain.DTOs.Authentication;
 using Orcamentaria.AuthService.Domain.DTOs.User;
 using Orcamentaria.AuthService.Domain.Services;
-using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Contexts;
+using Orcamentaria.Lib.Domain.DTOs.Authentication;
+using Orcamentaria.Lib.Domain.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.API.Controllers.v1
 {
@@ -35,14 +37,14 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         }
 
         [HttpPost("Bootstrap/Authenticate/{bootstrapSecret}", Name = "AuthenticateBootstrap")]
-        public async Task<Response<AuthenticationServiceResponseDTO>> AuthenticateBootstrap(string bootstrapSecret)
+        public async Task<Response<AuthenticationServiceResponseDTO>> AuthenticateWithBootstrapSecretAsync(string bootstrapSecret)
         {
             try
             {
                 //Reset Path
                 HttpContext.Request.Path = "/api/v1/Authentication/Service/Authenticate/Bootstrap";
 
-                return await _service.AuthenticateWithBootstrapSecret(bootstrapSecret);
+                return await _service.AuthenticateWithBootstrapSecretAsync(bootstrapSecret);
             }
             catch (Exception)
             {
@@ -57,6 +59,7 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             {
                 //Reset Path
                 HttpContext.Request.Path = "/api/v1/Authentication/User/Authenticate";
+                HttpContext.Request.RouteValues.Remove("password");
 
                 return _service.AuthenticateUser(email, password);
             }
@@ -67,14 +70,14 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         }
 
         [HttpPost("User/RefreshToken", Name = "AuthenticateRefreshTokenUser")]
-        public async Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUser([FromBody] UserRefreshToken dto)
+        public async Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUserAsync([FromBody] UserRefreshToken dto)
         {
             try
             {
                 //Reset Path
                 HttpContext.Request.Path = "/api/v1/Authentication/User/RefreshToken";
 
-                return await _service.RefreshTokenUser(dto.RefreshToken);
+                return await _service.RefreshTokenUserAsync(dto.RefreshToken);
             }
             catch (Exception)
             {

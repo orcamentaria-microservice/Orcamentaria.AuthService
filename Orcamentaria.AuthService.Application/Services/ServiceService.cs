@@ -8,6 +8,7 @@ using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models;
 using Orcamentaria.Lib.Domain.Models.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Responses;
 using Orcamentaria.Lib.Domain.Validators;
 
 namespace Orcamentaria.AuthService.Application.Services
@@ -31,6 +32,28 @@ namespace Orcamentaria.AuthService.Application.Services
             _mapper = mapper;
         }
 
+        public async Task<Response<IEnumerable<ServiceResponseDTO>>?> GetAsync(GridParams gridParams)
+        {
+            try
+            {
+                var (data, pagination) = await _repository.GetAsync(gridParams);
+
+                if (!data.Any())
+                    throw new InfoException($"Nenhum dado foi encontrado.", ErrorCodeEnum.NotFound);
+
+                return new Response<IEnumerable<ServiceResponseDTO>>(
+                    data.Select(x => _mapper.Map<Service, ServiceResponseDTO>(x)), pagination);
+            }
+            catch (DefaultException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
+        }
+
         public Service GetByCredentials(string clientId, string clientSecret)
         {
             try
@@ -38,7 +61,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 var data = _repository.GetByCredentials(clientId, clientSecret);
 
                 if (data is null)
-                    throw new InfoException($"O {clientId} e {clientSecret} não foi encontrado", ErrorCodeEnum.NotFound);
+                    throw new InfoException($"O {clientId} e {clientSecret} nao foi encontrado", ErrorCodeEnum.NotFound);
 
                 return data;
             }
@@ -52,17 +75,11 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Response<ServiceResponseDTO> GetById(long id)
+        public async Task<Service?> GetByIdAsync(long id)
         {
             try
             {
-                var data = _repository.GetById(id);
-
-                if (data is null)
-                    throw new InfoException($"O {id} não foi encontrado", ErrorCodeEnum.NotFound);
-                
-                return new Response<ServiceResponseDTO>(
-                    _mapper.Map<Service, ServiceResponseDTO>(data));
+                return await _repository.GetByIdAsync(id);
             }
             catch (DefaultException)
             {
@@ -74,7 +91,7 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<ServiceResponseDTO>> Insert(ServiceInsertDTO dto)
+        public async Task<Response<ServiceResponseDTO>> InsertAsync(ServiceInsertDTO dto)
         {
             try
             {
@@ -94,7 +111,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 if (!result.IsValid)
                     throw new ValidationException(result);
 
-                var entity = await _repository.Insert(service);
+                var entity = await _repository.InsertAsync(service);
 
                 return new Response<ServiceResponseDTO>(_mapper.Map<Service, ServiceResponseDTO>(entity));
             }
@@ -108,13 +125,10 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<ServiceResponseDTO>> Update(long id, ServiceUpdateDTO dto)
+        public async Task<Response<ServiceResponseDTO>> UpdateAsync(long id, ServiceUpdateDTO dto)
         {
             try
             {
-                if (_repository.GetById(id) is null)
-                    throw new InfoException($"O {id} não foi encontrado", ErrorCodeEnum.NotFound);
-
                 var service = _mapper.Map<ServiceUpdateDTO, Service>(dto);
 
                 service.Id = id;
@@ -124,7 +138,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 if (!result.IsValid)
                     throw new ValidationException(result);
 
-                var entity = await _repository.Update(id, service);
+                var entity = await _repository.UpdateAsync(id, service);
 
                 return new Response<ServiceResponseDTO>(_mapper.Map<Service, ServiceResponseDTO>(entity));
             }
@@ -146,31 +160,29 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<ServiceResponseDTO>> UpdateCredentials(long id)
+        public async Task<Response<ServiceResponseDTO>> UpdateCredentialsAsync(long id)
         {
             try
             {
+                var entity = await _repository.GetByIdAsync(id);
+
+                if (entity is null)
+                    throw new InfoException($"O {id} nao foi encontrado.", ErrorCodeEnum.NotFound);
+
                 var clientIdTokenService = _provider.GetRequiredKeyedService<ITokenService<Service>>("clientIdToken");
                 var clientSecretTokenService = _provider.GetRequiredKeyedService<ITokenService<Service>>("clientSecretToken");
 
-                var service = _repository.GetById(id);
+                var service = await _repository.GetByIdAsync(id);
 
                 if (service is null)
-                    throw new InfoException($"O {id} não foi encontrado", ErrorCodeEnum.NotFound);
+                    throw new InfoException($"O {id} nao foi encontrado", ErrorCodeEnum.NotFound);
 
-                var clientId = clientIdTokenService.Generate(service);
-                var clientSecret = clientSecretTokenService.Generate(service);
+                entity.ClientId = clientIdTokenService.Generate(service);
+                entity.ClientSecret = clientSecretTokenService.Generate(service);
 
-                await _repository.UpdateCredentials(id, clientId, clientSecret);
+                await _repository.UpdateAsync(id, entity);
 
-                return new Response<ServiceResponseDTO>(
-                    new ServiceResponseDTO
-                    {
-                        Id = id,
-                        Name = service.Name,
-                        ClientId = clientId,
-                        ClientSecret = clientSecret
-                    });
+                return new Response<ServiceResponseDTO>(_mapper.Map<Service, ServiceResponseDTO>(entity));
             }
             catch (DatabaseException)
             {

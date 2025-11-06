@@ -20,7 +20,7 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Task<long> Validate(string token)
+        public Task<long> ValidateAsync(string token)
         {
             throw new NotImplementedException();
         }

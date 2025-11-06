@@ -1,7 +1,9 @@
 ﻿using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Domain.Services;
+using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Exceptions;
 using System.Security.Cryptography;
 
 namespace Orcamentaria.AuthService.Application.Services
@@ -29,34 +31,37 @@ namespace Orcamentaria.AuthService.Application.Services
             return $"{token} || {hash}";
         }
 
-        public Task<long> Validate(string token)
+        public async Task<long> ValidateAsync(string token)
         {
             try
             {
                 var parts = token.Split('.', 2);
                 if (parts.Length != 2)
-                    throw new UnauthorizedException("Token inválido");
+                    throw new InfoException("Secret invalida.", ErrorCodeEnum.ValidationFailed);
 
                 var id = long.Parse(parts[0]);
                 var secret = parts[1];
 
-                var bootstrap = _bootstrapRepository.GetById(id);
+                var bootstrap = await _bootstrapRepository.GetByIdAsync(id);
                 if (bootstrap == null || !bootstrap.Active || bootstrap.ExpiresAt < DateTime.UtcNow)
-                    throw new UnauthorizedException("Token inválido");
+                    throw new InfoException("Secret invalida.", ErrorCodeEnum.ValidationFailed);
 
                 using var sha256 = SHA256.Create();
                 var hashBytes = sha256.ComputeHash(Base64UrlDecode(secret));
                 var hashHex = Convert.ToHexString(hashBytes);
 
                 if (!hashHex.Equals(bootstrap.Hash, StringComparison.OrdinalIgnoreCase))
-                    throw new UnauthorizedException("Token inválido");
+                    throw new InfoException("Secret invalida.", ErrorCodeEnum.ValidationFailed);
 
-                return Task.FromResult(id);
-            }
-            catch (Exception)
+                return id;
+        }
+            catch (DefaultException)
             {
-
                 throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException($"Erro inesperado na validacao do bootstrap secret: {ex.Message}", ex);
             }
         }
 

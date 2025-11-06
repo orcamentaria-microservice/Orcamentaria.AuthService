@@ -1,15 +1,20 @@
 ﻿using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Infrastructure.Contexts;
+using Orcamentaria.Lib.Domain.Contexts;
 using Orcamentaria.Lib.Domain.Exceptions;
+using Orcamentaria.Lib.Infrastructure.Repositories;
 
 namespace Orcamentaria.AuthService.Infrastructure.Repositories
 {
-    public class ServiceRepository : IServiceRepository
+    public class ServiceRepository : BasicRepository<Service>, IServiceRepository
     {
         private readonly MySqlContext _dbContext;
 
-        public ServiceRepository(MySqlContext dbContext)
+        public ServiceRepository(
+            MySqlContext dbContext, 
+            IUserAuthContext userAuthContext) 
+            : base(dbContext, userAuthContext)
         {
             _dbContext = dbContext;
         }
@@ -20,82 +25,6 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
             {
                 return _dbContext.Services.FirstOrDefault(
                     x => x.ClientId == clientId && x.ClientSecret == clientSecret);
-            }
-            catch (Exception ex)
-            {
-                throw new DatabaseException(ex.Message, ex);
-            }
-        }
-
-        public Service? GetById(long id)
-        {
-            try
-            {
-                return _dbContext.Services.FirstOrDefault(x => x.Id == id);
-            }
-            catch (Exception ex)
-            {
-                throw new DatabaseException(ex.Message, ex);
-            }
-        }
-
-        public Service? GetByName(string name)
-        {
-            try
-            {
-                return _dbContext.Services.FirstOrDefault(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
-            }
-            catch (Exception ex)
-            {
-                throw new DatabaseException(ex.Message, ex);
-            }
-        }
-
-        public async Task<Service> Insert(Service service)
-        {
-            try
-            {
-                _dbContext.Services.Add(service);
-                await _dbContext.SaveChangesAsync();
-                return service;
-            }
-            catch (Exception ex)
-            {
-                throw new DatabaseException(ex.Message, ex);
-            }
-        }
-
-        public async Task<Service> Update(long id, Service address)
-        {
-            try
-            {
-                var entity = _dbContext.Services.First(p => p.Id == id);
-
-                entity.Name = address.Name;
-                entity.Active = address.Active;
-
-                await _dbContext.SaveChangesAsync();
-
-                return entity;
-            }
-            catch (Exception ex)
-            {
-                throw new DatabaseException(ex.Message, ex);
-            }
-        }
-
-        public async Task<Service> UpdateCredentials(long id, string clientId, string clientSecret)
-        {
-            try
-            {
-                var entity = _dbContext.Services.First(p => p.Id == id);
-
-                entity.ClientId = clientId;
-                entity.ClientSecret = clientSecret;
-
-                await _dbContext.SaveChangesAsync();            
-
-                return entity;
             }
             catch (Exception ex)
             {

@@ -1,7 +1,9 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Services;
+using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Exceptions;
 using Orcamentaria.Lib.Domain.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -57,7 +59,7 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<long> Validate(string token)
+        public async Task<long> ValidateAsync(string token)
         {
             try
             {
@@ -82,19 +84,19 @@ namespace Orcamentaria.AuthService.Application.Services
                 var tokenResult = await tokenHandler.ValidateTokenAsync(token, validationParameters);
 
                 if (!tokenResult.IsValid)
-                    throw new UnauthorizedException("Token inválido");
+                    throw new InfoException("Token invalido.", ErrorCodeEnum.ValidationFailed);
 
                 var userIdClaim = tokenResult.Claims.FirstOrDefault(c => c.Key == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
                 var tokenType = tokenResult.Claims.FirstOrDefault(c => c.Key == "TokenType").Value;
 
                 if (!tokenType.Equals("RefreshToken"))
-                    throw new UnauthorizedAccessException("Token inválido.");
+                    throw new InfoException("Token invalido.", ErrorCodeEnum.ValidationFailed);
 
                 if (userIdClaim is null)
-                    throw new UnauthorizedAccessException("Token inválido.");
+                    throw new InfoException("Token invalido.", ErrorCodeEnum.ValidationFailed);
 
                 if (!long.TryParse(userIdClaim.ToString(), out var userId))
-                    throw new UnauthorizedAccessException("Token inválido.");
+                    throw new InfoException("Token invalido.", ErrorCodeEnum.ValidationFailed);
 
                 return userId;
             }

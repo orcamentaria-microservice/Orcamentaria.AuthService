@@ -3,6 +3,6 @@
     public interface ITokenService<T>
     {
         string Generate(T data);
-        Task<long> Validate(string token);
+        Task<long> ValidateAsync(string token);
     }
 }

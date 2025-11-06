@@ -8,6 +8,7 @@ using Orcamentaria.Lib.Domain.Models;
 using Orcamentaria.Lib.Domain.Validators;
 using Orcamentaria.Lib.Domain.Models.Exceptions;
 using Orcamentaria.Lib.Domain.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.Application.Services
 {
@@ -26,18 +27,11 @@ namespace Orcamentaria.AuthService.Application.Services
             _mapper = mapper;
             _validator = validator;
         }
-
-        public Response<PermissionResponseDTO> GetById(long id)
+        public async Task<Permission?> GetByIdAsync(long id)
         {
             try
             {
-                var data = _repository.GetById(id);
-
-                if (data is null)
-                    throw new InfoException($"O {id} não foi encontrado", ErrorCodeEnum.NotFound);
-
-                return new Response<PermissionResponseDTO>(
-                    _mapper.Map<Permission, PermissionResponseDTO>(data));
+                return await _repository.GetByIdAsync(id);
             }
             catch (DefaultException)
             {
@@ -49,17 +43,17 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Response<IEnumerable<PermissionResponseDTO>> GetByResource(ResourceEnum resource)
+        public async Task<Response<IEnumerable<PermissionResponseDTO>>?> GetAsync(GridParams gridParams)
         {
             try
             {
-                var data = _repository.GetByResource(resource);
+                var (data, pagination) = await _repository.GetAsync(gridParams);
 
                 if (!data.Any())
-                    throw new InfoException($"Nenhum dado foi encontrado", ErrorCodeEnum.NotFound);
+                    throw new InfoException($"Nenhum dado foi encontrado.", ErrorCodeEnum.NotFound);
 
                 return new Response<IEnumerable<PermissionResponseDTO>>(
-                    data.Select(x => _mapper.Map<Permission, PermissionResponseDTO>(x)));
+                    data.Select(x => _mapper.Map<Permission, PermissionResponseDTO>(x)), pagination);
             }
             catch (DefaultException)
             {
@@ -71,45 +65,7 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Response<IEnumerable<PermissionResponseDTO>> GetByType(PermissionTypeEnum type)
-        {
-            try
-            {
-                var data = _repository.GetByType(type);
-
-                if (!data.Any())
-                    throw new InfoException($"Nenhum dado foi encontrado", ErrorCodeEnum.NotFound);
-
-                return new Response<IEnumerable<PermissionResponseDTO>>(
-                    data.Select(x => _mapper.Map<Permission, PermissionResponseDTO>(x)));
-            }
-            catch (DefaultException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new UnexpectedException(ex.Message, ex);
-            }
-        }
-
-        public Permission? GetPermission(long id)
-        {
-            try
-            {
-                return _repository.GetById(id);
-            }
-            catch(DefaultException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new UnexpectedException(ex.Message, ex);
-            }
-        }
-
-        public async Task<Response<PermissionResponseDTO>> Insert(PermissionInsertDTO dto)
+        public async Task<Response<PermissionResponseDTO>> InsertAsync(PermissionInsertDTO dto)
         {
             try
             {
@@ -122,7 +78,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 if(!result.IsValid)
                     throw new ValidationException(result);
 
-                var entity = await _repository.Insert(permission);
+                var entity = await _repository.InsertAsync(permission);
 
                 return new Response<PermissionResponseDTO>(_mapper.Map<Permission, PermissionResponseDTO>(entity));
             }
@@ -136,13 +92,10 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<PermissionResponseDTO>> Update(long id, PermissionUpdateDTO dto)
+        public async Task<Response<PermissionResponseDTO>> UpdateAsync(long id, PermissionUpdateDTO dto)
         {
             try
             {
-                if (_repository.GetById(id) is null)
-                    throw new InfoException($"O {id} não foi encontrado", ErrorCodeEnum.NotFound);
-
                 var permission = _mapper.Map<PermissionUpdateDTO, Permission>(dto);
 
                 permission.IncrementalPermission = permission.IncrementalPermission.ToUpper();
@@ -153,7 +106,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 if (!result.IsValid)
                     throw new ValidationException(result);
 
-                var entity = await _repository.Update(id, permission);
+                var entity = await _repository.UpdateAsync(id, permission);
 
                 return new Response<PermissionResponseDTO>(_mapper.Map<Permission, PermissionResponseDTO>(entity));
             }

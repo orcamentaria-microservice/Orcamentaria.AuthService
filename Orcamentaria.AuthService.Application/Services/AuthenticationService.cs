@@ -4,8 +4,8 @@ using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
-using Orcamentaria.Lib.Domain.Models;
 using Orcamentaria.Lib.Domain.Models.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.Application.Services
 {
@@ -39,7 +39,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 var service = _serviceService.GetByCredentials(clientId, clientSecret);
 
                 if (service is null)
-                    throw new InfoException($"Credenciais inválidas.", ErrorCodeEnum.NotFound);
+                    throw new InfoException($"Credenciais invalidas.", ErrorCodeEnum.NotFound);
 
                 var token = serviceTokenService.Generate(service);
 
@@ -67,13 +67,13 @@ namespace Orcamentaria.AuthService.Application.Services
                 var userTokenService = _provider.GetRequiredKeyedService<ITokenService<User>>("userToken");
                 var userRefreshTokenService = _provider.GetRequiredKeyedService<ITokenService<User>>("userRefreshToken");
                 
-                var user = _userService.GetUserByCredential(email);
+                var user = _userService.GetByEmail(email);
 
                 if (user is null)
-                    throw new InfoException($"Email e/ou senha inválidos.", ErrorCodeEnum.NotFound);
+                    throw new InfoException($"Email e/ou senha invalidos.", ErrorCodeEnum.NotFound);
 
                 if(!_passwordService.PasswordIsValid(password, user.Password))
-                    throw new InfoException($"Email e/ou senha inválidos.", ErrorCodeEnum.NotFound);
+                    throw new InfoException($"Email e/ou senha invalidos.", ErrorCodeEnum.NotFound);
 
                 var token = userTokenService.Generate(user);
                 var refreshToken = userRefreshTokenService.Generate(user);
@@ -97,19 +97,19 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUser(string refreshToken)
+        public async Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUserAsync(string refreshToken)
         {
             try
             {
                 var userTokenService = _provider.GetRequiredKeyedService<ITokenService<User>>("userToken");
                 var userRefreshTokenService = _provider.GetRequiredKeyedService<ITokenService<User>>("userRefreshToken");
 
-                var userId = await userRefreshTokenService.Validate(refreshToken);
+                var userId = await userRefreshTokenService.ValidateAsync(refreshToken);
 
-                var user = _userService.GetById(userId);
+                var user = await _userService.GetByIdAsync(userId);
 
                 if (user is null)
-                    throw new InfoException($"O {userId} não foi encontrado.", ErrorCodeEnum.NotFound);
+                    throw new InfoException($"O {userId} nao foi encontrado.", ErrorCodeEnum.NotFound);
 
                 var token = userTokenService.Generate(user);
                 var newRefreshToken = userRefreshTokenService.Generate(user);
@@ -133,29 +133,29 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<AuthenticationServiceResponseDTO>> AuthenticateWithBootstrapSecret(string bootstrapSecret)
+        public async Task<Response<AuthenticationServiceResponseDTO>> AuthenticateWithBootstrapSecretAsync(string bootstrapSecret)
         {
             try
             {
                 var bootstrapSecretTokenService = _provider.GetRequiredKeyedService<ITokenService<Bootstrap>>("bootstrapSecretToken");
                 var bootstrapTokenService = _provider.GetRequiredKeyedService<ITokenService<Service>>("bootstrapToken");
 
-                var bootstrapId = await bootstrapSecretTokenService.Validate(bootstrapSecret);
+                var bootstrapId = await bootstrapSecretTokenService.ValidateAsync(bootstrapSecret);
 
-                var bootstrap = _bootstrapService.GetById(bootstrapId);
-                if (!bootstrap.Success || bootstrap.Data is null)
-                    throw new InfoException($"Ocorreu um erro na geração do token.", ErrorCodeEnum.NotFound);
+                var bootstrap = await _bootstrapService.GetByIdAsync(bootstrapId);
+                if (bootstrap is null)
+                    throw new InfoException($"Ocorreu um erro na geracao do token.", ErrorCodeEnum.NotFound);
 
-                var service = _serviceService.GetById(bootstrap.Data.ServiceId);
-                if (!service.Success || service.Data is null)
-                    throw new InfoException($"Ocorreu um erro ao buscar serviço.", ErrorCodeEnum.NotFound);
+                var service = await _serviceService.GetByIdAsync(bootstrap.ServiceId);
+                if (service is null)
+                    throw new InfoException($"Ocorreu um erro ao buscar servico.", ErrorCodeEnum.NotFound);
 
-                var token = bootstrapTokenService.Generate(new Service { Id = service.Data.Id, Name = service.Data.Name });
+                var token = bootstrapTokenService.Generate(new Service { Id = service.Id, Name = service.Name });
 
                 var response = new AuthenticationServiceResponseDTO
                 {
-                    ServiceId = service.Data.Id,
-                    Name = service.Data.Name,
+                    ServiceId = service.Id,
+                    Name = service.Name,
                     Token = token,
                 };
 

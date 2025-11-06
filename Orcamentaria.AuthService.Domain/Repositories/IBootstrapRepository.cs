@@ -1,12 +1,10 @@
 ﻿using Orcamentaria.AuthService.Domain.Models;
+using Orcamentaria.Lib.Domain.Repositories;
 
 namespace Orcamentaria.AuthService.Domain.Repositories
 {
-    public interface IBootstrapRepository
+    public interface IBootstrapRepository : IBasicRepository<Bootstrap>
     {
-        Bootstrap? GetById(long Id);
-        Bootstrap? GetActiveByServiceId(long serviceId);
-        Task<Bootstrap> Insert(Bootstrap bootstrap);
         Task<Bootstrap> UpdateHash(long id, string hash);
         Task<Bootstrap> Inactive(long id);
     }

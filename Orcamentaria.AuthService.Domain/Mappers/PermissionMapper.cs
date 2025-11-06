@@ -28,7 +28,10 @@ namespace Orcamentaria.AuthService.Domain.Mappers
                 .ForMember(s => s.Description, opt => opt.MapFrom(d => d.Description))
                 .ForMember(s => s.Type, opt => opt.MapFrom(d => d.Type))
                 .ForMember(s => s.IncrementalPermission, opt => opt.MapFrom(d => d.IncrementalPermission))
-                .ForMember(s => s.CreateAt, opt => opt.MapFrom(d => d.CreateAt))
+                .ForMember(s => s.CreatedAt, opt => opt.MapFrom(d => d.CreatedAt))
+                .ForMember(s => s.CreatedBy, opt => opt.MapFrom(d => d.CreatedBy))
+                .ForMember(s => s.UpdatedAt, opt => opt.MapFrom(d => d.UpdatedAt))
+                .ForMember(s => s.UpdatedBy, opt => opt.MapFrom(d => d.UpdatedBy))
                 .ReverseMap();
         }
     }

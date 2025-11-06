@@ -9,6 +9,9 @@ namespace Orcamentaria.AuthService.Domain.DTOs.Permission
         public string Description { get; set; }
         public PermissionTypeEnum Type { get; set; }
         public string IncrementalPermission { get; set; }
-        public DateTime CreateAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public long CreatedBy { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public long UpdatedBy { get; set; }
     }
 }

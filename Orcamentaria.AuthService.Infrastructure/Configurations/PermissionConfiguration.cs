@@ -8,14 +8,54 @@ namespace Orcamentaria.AuthService.Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<Permission> builder)
         {
-            builder.ToTable("t_permission");
+            builder.ToTable("T_PERMISSION");
             builder.HasKey(p => p.Id);
-            builder.Property(p => p.Id).HasColumnName("ID");
-            builder.Property(p => p.Resource).HasColumnName("RESOURCE");
-            builder.Property(p => p.Description).HasColumnName("DESCRIPTION");
-            builder.Property(p => p.Type).HasColumnName("TYPE");
-            builder.Property(p => p.IncrementalPermission).HasColumnName("INCREMENTAL_PERMISSION");
-            builder.Property(p => p.CreateAt).HasColumnName("CREATE_AT");
+            builder.Property(p => p.Id)
+                .HasColumnName("ID")
+                .HasColumnType("BIGINT")
+                .ValueGeneratedOnAdd()
+                .IsRequired();
+
+            builder.Property(p => p.Resource)
+                .HasColumnName("RESOURCE")
+                .HasColumnType("INT")
+                .IsRequired();
+
+            builder.Property(p => p.Description)
+                .HasColumnName("DESCRIPTION")
+                .HasColumnType("VARCHAR(150)");
+
+            builder.Property(p => p.Type)
+                .HasColumnName("TYPE")
+                .HasColumnType("INT")
+                .IsRequired();
+
+            builder.Property(p => p.IncrementalPermission)
+                .HasColumnName("INCREMENTAL_PERMISSION")
+                .HasColumnType("VARCHAR(50)");
+
+            builder.Property(p => p.CreatedAt)
+                .HasColumnName("CREATED_AT")
+                .HasColumnType("DATETIME")
+                .IsRequired();
+
+            builder.Property(p => p.CreatedBy)
+                .HasColumnName("CREATED_BY")
+                .HasColumnType("BIGINT")
+                .IsRequired();
+
+            builder.Property(p => p.UpdatedAt)
+                .HasColumnName("UPDATED_AT")
+                .HasColumnType("DATETIME")
+                .IsRequired();
+
+            builder.Property(p => p.UpdatedBy)
+                .HasColumnName("UPDATED_BY")
+                .HasColumnType("BIGINT")
+                .IsRequired();
+
+
+
         }
     }
 }

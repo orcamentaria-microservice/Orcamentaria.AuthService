@@ -20,11 +20,11 @@ namespace Orcamentaria.AuthService.Application.Validators
         public PermissionValidator()
         {
             RuleFor(x => x.Resource)
-                .NotNull().WithMessage("O {PropertyName} é obrigatório.")
-                .Must(x => Enum.IsDefined(typeof(ResourceEnum), x)).WithMessage("O {PropertyName} é inválido.");
+                .NotNull().WithMessage("O {PropertyName} e obrigatorio.")
+                .Must(x => Enum.IsDefined(typeof(ResourceEnum), x)).WithMessage("O {PropertyName} e invalido.");
             RuleFor(x => x.Description)
-                .NotNull().WithMessage("O {PropertyName} é obrigatório.")
-                .MaximumLength(150).WithMessage("O tamanho máximo da {PropertyName} é de {MaxLength} caracteres.");
+                .NotNull().WithMessage("O {PropertyName} e obrigatorio.")
+                .MaximumLength(150).WithMessage("O tamanho maximo da {PropertyName} e de {MaxLength} caracteres.");
             RuleFor(x => x)
                 .Must(x => 
                 {
@@ -33,7 +33,7 @@ namespace Orcamentaria.AuthService.Application.Validators
 
                     return x.Type == 0;
                 })
-                .WithMessage("O Type é obrigatório.")
+                .WithMessage("O Type e obrigatorio.")
                 .Must(x =>
                 {
                     if (x.Resource == ResourceEnum.MASTER)
@@ -41,10 +41,10 @@ namespace Orcamentaria.AuthService.Application.Validators
 
                     return Enum.IsDefined(typeof(PermissionTypeEnum), x.Type);
                 })
-                .WithMessage("O Type é inválido.");
+                .WithMessage("O Type e invalido.");
             RuleFor(x => x.IncrementalPermission)
-                .MaximumLength(50).WithMessage("O tamanho máximo da {PropertyName} é de {MaxLength} caracteres.")
-                .Must(x => !x.Contains(" ")).WithMessage("O {PropertyName} não pode conter espaços, ex: PERMISSAO GERAL.");
+                .MaximumLength(50).WithMessage("O tamanho maximo da {PropertyName} e de {MaxLength} caracteres.")
+                .Must(x => !x.Contains(" ")).WithMessage("O {PropertyName} nao pode conter espacos, ex: PERMISSAO GERAL.");
         }
 
         public ValidationResult ValidateBeforeInsert(Permission entity)
@@ -52,10 +52,7 @@ namespace Orcamentaria.AuthService.Application.Validators
             var validator = new PermissionValidator();
 
             validator.RuleFor(x => x.Id)
-                .Empty().WithMessage("O {PropertyName} não deve ser informado.");
-
-            validator.RuleFor(x => x.CreateAt)
-                .NotNull().WithMessage("O {PropertyName} é obrigatório.");
+                .Empty().WithMessage("O {PropertyName} nao deve ser informado.");
 
             return validator.Validate(entity);
         }
@@ -70,11 +67,11 @@ namespace Orcamentaria.AuthService.Application.Validators
             validator.RuleFor(x => x.Id)
                .Must((x, cancelation) =>
                {
-                   var entity = _repository.GetById(x.Id);
+                   var entity = _repository.GetByIdAsync(x.Id).GetAwaiter().GetResult();
 
                    return entity is not null;
 
-               }).WithMessage("Id não encontrado.");
+               }).WithMessage("Id nao encontrado.");
 
             return validator.Validate(entity);
         }

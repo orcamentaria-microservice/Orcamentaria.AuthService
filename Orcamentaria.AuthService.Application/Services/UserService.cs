@@ -8,6 +8,7 @@ using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models;
 using Orcamentaria.Lib.Domain.Models.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Responses;
 using Orcamentaria.Lib.Domain.Validators;
 
 namespace Orcamentaria.AuthService.Application.Services
@@ -38,11 +39,11 @@ namespace Orcamentaria.AuthService.Application.Services
         }
 
 
-        public User? GetById(long id)
+        public async Task<User?> GetByIdAsync(long id)
         {
             try
             {
-                return _repository.GetById(id);
+                return await _repository.GetByIdAsync(id);
             }
             catch (DefaultException)
             {
@@ -54,18 +55,33 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Response<IEnumerable<UserResponseDTO>> GetByCompanyId()
+        public User? GetByEmail(string email)
         {
             try
             {
-                var data = _repository.GetByCompanyId();
+                return _repository.GetByEmail(email);
+            }
+            catch (DefaultException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new UnexpectedException(ex.Message, ex);
+            }
+        }
+
+        public async Task<Response<IEnumerable<UserResponseDTO>>?> GetAsync(GridParams gridParams)
+        {
+            try
+            {
+                var (data, pagination) = await _repository.GetAsync(gridParams);
 
                 if (!data.Any())
-                    throw new InfoException($"Nenhum dado foi encontrado", ErrorCodeEnum.NotFound);
+                    throw new InfoException($"Nenhum dado foi encontrado.", ErrorCodeEnum.NotFound);
 
                 return new Response<IEnumerable<UserResponseDTO>>(
-                    _repository.GetByCompanyId()
-                    .Select(x => _mapper.Map<User, UserResponseDTO>(x)));
+                    data.Select(x => _mapper.Map<User, UserResponseDTO>(x)), pagination);
             }
             catch (DefaultException)
             {
@@ -77,44 +93,7 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public User? GetUserByCredential(string email)
-        {
-            try
-            {
-                return _repository.GetByEmail(email); ;
-            }
-            catch (DefaultException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new UnexpectedException(ex.Message, ex);
-            }
-        }
-
-        public Response<UserResponseDTO> GetByEmail(string email)
-        {
-            try
-            {
-                var data = _repository.GetByEmail(email);
-
-                if(data is null)
-                    throw new InfoException($"O {email} não foi encontrado", ErrorCodeEnum.NotFound);
-
-                return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(data));
-            }
-            catch (DefaultException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new UnexpectedException(ex.Message, ex);
-            }
-        }
-
-        public async Task<Response<UserResponseDTO>> Insert(UserInsertDTO dto)
+        public async Task<Response<UserResponseDTO>> InsertAsync(UserInsertDTO dto)
         {
             try
             {
@@ -128,7 +107,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 user.Password = _passwordService.Encript(user.Password);
                 user.CompanyId = _userAuthContext.UserId;
             
-                var entity = await _repository.Insert(user);
+                var entity = await _repository.InsertAsync(user);
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
@@ -142,12 +121,11 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<UserResponseDTO>> Update(long id, UserUpdateDTO dto)
+        public async Task<Response<UserResponseDTO>> UpdateAsync(long id, UserUpdateDTO dto)
         {
             var user = _mapper.Map<UserUpdateDTO, User>(dto);
 
             user.Id = id;
-            user.CompanyId = _userAuthContext.UserCompanyId;
 
             var result = _validator.ValidateBeforeUpdate(user);
 
@@ -156,7 +134,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
             try
             {
-                var entity = await _repository.Update(id, user);
+                var entity = await _repository.UpdateAsync(id, user);
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
@@ -170,22 +148,22 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<UserResponseDTO>> UpdatePassword(long id, UserUpdatePasswordDTO dto)
+        public async Task<Response<UserResponseDTO>> UpdatePasswordAsync(long id, UserUpdatePasswordDTO dto)
         {
             try
             {
                 if(_userAuthContext.UserId != id)
-                    throw new UnauthorizedException("Você não possui permissão para executar essa ação.");
+                    throw new InfoException("Voce nao possui permissao para executar essa acao.", ErrorCodeEnum.Unauthorized);
 
-                if(_repository.GetById(id) is null)
-                    throw new InfoException($"O {id} não foi encontrado", ErrorCodeEnum.NotFound);
+                if(await _repository.GetByIdAsync(id) is null)
+                    throw new InfoException($"O {id} nao foi encontrado.", ErrorCodeEnum.NotFound);
 
                 var result = _passwordService.ValidatePattern(dto.Password);
 
                 if (!result.IsValid)
                     throw new ValidationException(result);
 
-                var entity = await _repository.UpdatePassword(id, _passwordService.Encript(dto.Password));
+                var entity = await _repository.UpdatePasswordAsync(id, _passwordService.Encript(dto.Password));
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
             }
@@ -199,26 +177,26 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
         
-        public async Task<Response<UserResponseDTO>> AddPermission(long userId, UserAddPermissionsDTO dto)
+        public async Task<Response<UserResponseDTO>> AddPermissionsAsync(long userId, UserAddPermissionsDTO dto)
         {
             try
             {
-                if(_repository.GetById(userId) is null)
-                    throw new InfoException($"O {userId} não foi encontrado.", ErrorCodeEnum.NotFound);
+                if(await _repository.GetByIdAsync(userId) is null)
+                    throw new InfoException($"O {userId} nao foi encontrado.", ErrorCodeEnum.NotFound);
 
                 var addPermissions = new List<Permission>();
 
                 foreach (var permissionId in dto.PermissionIds)
                 {
-                    var permission = _permissionService.GetPermission(permissionId);
+                    var permission = await _permissionService.GetByIdAsync(permissionId);
 
                     if(permission is null)
-                        throw new InfoException($"A permissão {permissionId} não foi encontrada.", ErrorCodeEnum.NotFound);
+                        throw new InfoException($"A permissao {permissionId} nao foi encontrada.", ErrorCodeEnum.NotFound);
 
                     addPermissions.Add(permission);
                 }
             
-                await _repository.AddPermissions(userId, addPermissions);
+                await _repository.AddPermissionsAsync(userId, addPermissions);
 
                 return new Response<UserResponseDTO>();
             }
@@ -232,26 +210,26 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public async Task<Response<UserResponseDTO>> RemovePermission(long userId, UserRemovePermissionsDTO dto)
+        public async Task<Response<UserResponseDTO>> RemovePermissionsAsync(long userId, UserRemovePermissionsDTO dto)
         {
             try
             {
-                if (_repository.GetById(userId) is null)
-                    throw new InfoException($"O {userId} não foi encontrado.", ErrorCodeEnum.NotFound);
+                if (await _repository.GetByIdAsync(userId) is null)
+                    throw new InfoException($"O {userId} nao foi encontrado.", ErrorCodeEnum.NotFound);
 
                 var removePermissions = new List<Permission>();
 
                 foreach (var permissionId in dto.PermissionIds)
                 {
-                    var permission = _permissionService.GetPermission(permissionId);
+                    var permission = await _permissionService.GetByIdAsync(permissionId);
                 
                     if (permission is null)
-                        throw new InfoException($"A permissão {permissionId} não foi encontrada.", ErrorCodeEnum.NotFound);
+                        throw new InfoException($"A permissao {permissionId} nao foi encontrada.", ErrorCodeEnum.NotFound);
 
                     removePermissions.Add(permission);
 
                 }
-                    await _repository.RemovePermissions(userId, removePermissions);
+                    await _repository.RemovePermissionsAsync(userId, removePermissions);
 
                 return new Response<UserResponseDTO>();
             }
@@ -264,5 +242,6 @@ namespace Orcamentaria.AuthService.Application.Services
                 throw new UnexpectedException(ex.Message, ex);
             }
         }
+
     }
 }

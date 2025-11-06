@@ -1,17 +1,15 @@
 ﻿using Orcamentaria.AuthService.Domain.DTOs.Permission;
 using Orcamentaria.AuthService.Domain.Models;
-using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.Domain.Services
 {
     public interface IPermissionService
     {
-        Response<PermissionResponseDTO> GetById(long id);
-        Permission? GetPermission(long id);
-        Response<IEnumerable<PermissionResponseDTO>> GetByResource(ResourceEnum resource);
-        Response<IEnumerable<PermissionResponseDTO>> GetByType(PermissionTypeEnum type);
-        Task<Response<PermissionResponseDTO>> Insert(PermissionInsertDTO dto);
-        Task<Response<PermissionResponseDTO>> Update(long id, PermissionUpdateDTO dto);
+        Task<Permission?> GetByIdAsync(long id);
+        Task<Response<IEnumerable<PermissionResponseDTO>>?> GetAsync(GridParams gridParams);
+        Task<Response<PermissionResponseDTO>> InsertAsync(PermissionInsertDTO dto);
+        Task<Response<PermissionResponseDTO>> UpdateAsync(long id, PermissionUpdateDTO dto);
     }
 }

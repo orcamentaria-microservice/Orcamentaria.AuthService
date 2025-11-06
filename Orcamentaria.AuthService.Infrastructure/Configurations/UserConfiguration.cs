@@ -10,14 +10,58 @@ namespace Orcamentaria.AuthService.Infrastructure.Configurations
         {
             builder.ToTable("T_USER");
             builder.HasKey(p => p.Id);
-            builder.Property(p => p.Id).HasColumnName("ID");
-            builder.Property(p => p.Name).HasColumnName("NAME");
-            builder.Property(p => p.Email).HasColumnName("EMAIL");
-            builder.Property(p => p.Password).HasColumnName("PASSWORD");
-            builder.Property(p => p.CompanyId).HasColumnName("COMPANY_ID");
-            builder.Property(p => p.Active).HasColumnName("ACTIVE");
-            builder.Property(p => p.CreateAt).HasColumnName("CREATE_AT");
-            builder.Property(p => p.UpdateAt).HasColumnName("UPDATE_AT");
+            builder.Property(p => p.Id)
+                .HasColumnName("ID")
+                .HasColumnType("BIGINT")
+                .ValueGeneratedOnAdd()
+                .IsRequired();
+
+            builder.Property(p => p.Name)
+                .HasColumnName("NAME")
+                .HasColumnType("VARCHAR(100)")
+                .IsRequired();
+
+            builder.Property(p => p.Email)
+                .HasColumnName("EMAIL")
+                .HasColumnType("VARCHAR(200)")
+                .IsRequired();
+
+            builder.Property(p => p.Password)
+                .HasColumnName("PASSWORD")
+                .HasColumnType("VARCHAR(300)")
+                .IsRequired();
+
+            builder.Property(p => p.CompanyId)
+                .HasColumnName("COMPANY_ID")
+                .HasColumnType("BIGINT")
+                .IsRequired();
+
+            builder.Property(p => p.Active)
+                .HasColumnName("ACTIVE")
+                .HasColumnType("BIT")
+                .HasDefaultValue(true)
+                .IsRequired();
+
+            builder.Property(p => p.CreatedAt)
+                .HasColumnName("CREATED_AT")
+                .HasColumnType("DATETIME")
+                .IsRequired();
+
+            builder.Property(p => p.CreatedBy)
+                .HasColumnName("CREATED_BY")
+                .HasColumnType("BIGINT")
+                .IsRequired();
+
+            builder.Property(p => p.UpdatedAt)
+                .HasColumnName("UPDATED_AT")
+                .HasColumnType("DATETIME")
+                .IsRequired();
+
+            builder.Property(p => p.UpdatedBy)
+                .HasColumnName("UPDATED_BY")
+                .HasColumnType("BIGINT")
+                .IsRequired();
+
             builder.Ignore(p => p.Permissions);
 
             builder

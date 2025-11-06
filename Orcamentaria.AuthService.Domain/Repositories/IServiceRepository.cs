@@ -1,15 +1,11 @@
 ﻿using Orcamentaria.AuthService.Domain.Models;
+using Orcamentaria.Lib.Domain.Repositories;
 
 namespace Orcamentaria.AuthService.Domain.Repositories
 {
-    public interface IServiceRepository
+    public interface IServiceRepository : IBasicRepository<Service>
     {
-        Service? GetById(long id);
-        Service? GetByName(string name);
         Service? GetByCredentials(string clientId, string clientSecret);
-        Task<Service> Insert(Service service);
-        Task<Service> Update(long id, Service address);
-        Task<Service> UpdateCredentials(long id, string clientId, string clientSecret);
     }
 }
 

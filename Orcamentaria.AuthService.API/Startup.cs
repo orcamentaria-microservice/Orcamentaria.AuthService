@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using Orcamentaria.AuthService.Application.Providers;
 using Orcamentaria.AuthService.Application.Services;
 using Orcamentaria.AuthService.Application.Validators;
@@ -7,18 +6,17 @@ using Orcamentaria.AuthService.Domain.Mappers;
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Domain.Services;
-using Orcamentaria.AuthService.Infrastructure.Configurations;
 using Orcamentaria.AuthService.Infrastructure.Contexts;
 using Orcamentaria.AuthService.Infrastructure.Repositories;
-using Orcamentaria.Lib.Application.HostedServices;
-using Orcamentaria.Lib.Application.Services;
+using Orcamentaria.Lib.Application.Services.Test;
 using Orcamentaria.Lib.Domain.Contexts;
+using Orcamentaria.Lib.Domain.Models.Configurations;
 using Orcamentaria.Lib.Domain.Providers;
 using Orcamentaria.Lib.Domain.Services;
 using Orcamentaria.Lib.Domain.Validators;
 using Orcamentaria.Lib.Infrastructure;
 using Orcamentaria.Lib.Infrastructure.Contexts;
-using System.Configuration;
+using Orcamentaria.Lib.Infrastructure.Middlewares;
 
 namespace Orcamentaria.AuthService.API
 {
@@ -38,11 +36,8 @@ namespace Orcamentaria.AuthService.API
         {
             CommonDI.AddServiceRegistryHosted(services, Configuration);
 
-            CommonDI.ResolveCommonServices(_serviceName, _apiVersion, services, Configuration, () =>
+            CommonDI.ResolveCommonServicesWithMySql<MySqlContext>(_serviceName, _apiVersion, services, Configuration, () =>
             {
-                services.AddDbContext<MySqlContext>(options =>
-                    options.UseMySQL(Configuration.GetConnectionString("DefaultConnection")));
-
                 services.AddScoped<IUserAuthContext, UserAuthContext>();
 
                 services.AddAutoMapper(
@@ -76,6 +71,9 @@ namespace Orcamentaria.AuthService.API
                 services.AddKeyedScoped<ITokenService<Service>, BootstrapTokenService>("bootstrapToken");
 
                 services.AddScoped<ITokenProvider, TokenProvider>();
+
+                services.AddSingleton<ILogService, LogService>();
+                services.AddSingleton<IPublishMessageBrokerService, RabbitMqPublishService>();
             });
         }
 

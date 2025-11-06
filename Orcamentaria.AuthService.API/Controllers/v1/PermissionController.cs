@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Orcamentaria.AuthService.Domain.DTOs.Permission;
-using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.API.Controllers.v1
 {
@@ -20,40 +20,12 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         }
 
         [Authorize(Roles = "MASTER,PERMISSION:READ")]
-        [HttpGet("GetById/{id}", Name = "PermissionGetById")]
-        public Response<PermissionResponseDTO> GetById(long id)
+        [HttpPost("Get", Name = "PermissionGet")]
+        public async Task<Response<IEnumerable<PermissionResponseDTO>>?> GetAsync([FromBody] GridParams gridParams)
         {
             try
             {
-                return _service.GetById(id);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        [Authorize(Roles = "MASTER,PERMISSION:READ")]
-        [HttpGet("GetByResource/{resource}", Name = "PermissionGetByResource")]
-        public Response<IEnumerable<PermissionResponseDTO>> GetByResource(ResourceEnum resource)
-        {
-            try
-            {
-                return _service.GetByResource(resource);
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        [Authorize(Roles = "MASTER,PERMISSION:READ")]
-        [HttpGet("GetByType/{type}", Name = "PermissionGetByType")]
-        public Response<IEnumerable<PermissionResponseDTO>> GetByType(PermissionTypeEnum type)
-        {
-            try
-            {
-                return _service.GetByType(type);
+                return await _service.GetAsync(gridParams);
             }
             catch (Exception)
             {
@@ -63,11 +35,11 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
 
         [Authorize(Roles = "MASTER,PERMISSION:CREATE")]
         [HttpPost(Name = "PermissionInsert")]
-        public async Task<Response<PermissionResponseDTO>> Insert([FromBody] PermissionInsertDTO dto)
+        public async Task<Response<PermissionResponseDTO>> InsertAsync([FromBody] PermissionInsertDTO dto)
         {
             try
             {
-                return await _service.Insert(dto);
+                return await _service.InsertAsync(dto);
             }
             catch (Exception)
             {
@@ -77,11 +49,11 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
 
         [Authorize(Roles = "MASTER,PERMISSION:UPDATE")]
         [HttpPut("{id}", Name = "PermissionUpdate")]
-        public async Task<Response<PermissionResponseDTO>> Update(long id, [FromBody] PermissionUpdateDTO dto)
+        public async Task<Response<PermissionResponseDTO>> UpdateAsync(long id, [FromBody] PermissionUpdateDTO dto)
         {
             try
             {
-                return await _service.Update(id, dto);
+                return await _service.UpdateAsync(id, dto);
             }
             catch (Exception)
             {

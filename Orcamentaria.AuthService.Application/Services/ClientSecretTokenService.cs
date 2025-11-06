@@ -17,7 +17,10 @@ namespace Orcamentaria.AuthService.Application.Services
                     rng.GetBytes(key);
                 }
 
-                var clientSecret = Convert.ToBase64String(key);
+                var clientSecret = Convert.ToBase64String(key)
+                    .Replace("+", "-")
+                    .Replace("/", "_")
+                    .Replace("=", "");
 
                 return clientSecret;
             }
@@ -27,7 +30,7 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Task<long> Validate(string token)
+        public Task<long> ValidateAsync(string token)
         {
             throw new NotImplementedException();
         }

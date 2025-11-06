@@ -1,5 +1,5 @@
 ﻿using Orcamentaria.Lib.Domain.DTOs.Authentication;
-using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.Domain.Services
 {
@@ -7,8 +7,8 @@ namespace Orcamentaria.AuthService.Domain.Services
     {
         Response<AuthenticationUserResponseDTO> AuthenticateUser(string email, string password);
         Response<AuthenticationServiceResponseDTO> AuthenticateService(string clientId, string clientSecret);
-        Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUser(string refreshToken);
-        Task<Response<AuthenticationServiceResponseDTO>> AuthenticateWithBootstrapSecret(string bootstrapSecret);
+        Task<Response<AuthenticationUserResponseDTO>> RefreshTokenUserAsync(string refreshToken);
+        Task<Response<AuthenticationServiceResponseDTO>> AuthenticateWithBootstrapSecretAsync(string bootstrapSecret);
         
     }
 }

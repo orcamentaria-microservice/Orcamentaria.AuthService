@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Orcamentaria.AuthService.Domain.DTOs.Bootstrap;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.API.Controllers.v1
 {
@@ -19,12 +20,12 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         }
 
         [Authorize(Roles = "MASTER,BOOTSTRAP:CREATE")]
-        [HttpGet("CreateBootstrapSecret/{serviceId}", Name = "BootstrapCreateBootstrapSecret")]
-        public async Task<Response<BootstrapResponseDTO>> CreateBootstrapSecret(long serviceId)
+        [HttpGet("GenerateBootstrapSecret/{serviceId}", Name = "BootstrapGenerateBootstrapSecret")]
+        public async Task<Response<BootstrapResponseDTO>> GenerateBootstrapSecretAsync(long serviceId)
         {
             try
             {
-                return await _service.CreateBootstrapSecret(serviceId);
+                return await _service.GenerateBootstrapSecretAsync(serviceId);
             }
             catch (Exception)
             {
@@ -34,11 +35,11 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
 
         [Authorize(Roles = "MASTER,BOOTSTRAP:DELETE")]
         [HttpGet("RevokeBootstrapSecret/{serviceId}", Name = "BootstrapRevokeBootstrapSecret")]
-        public Response<long> RevokeBootstrapSecret(long serviceId)
+        public async Task<Response<long>> RevokeBootstrapSecretAsync(long serviceId)
         {
             try
             {
-                return _service.RevokeBootstrapSecret(serviceId);
+                return await _service.RevokeBootstrapSecretAsync(serviceId);
             }
             catch (Exception)
             {

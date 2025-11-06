@@ -7,6 +7,7 @@ using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models;
 using Orcamentaria.Lib.Domain.Models.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.Application.Services
 {
@@ -26,32 +27,51 @@ namespace Orcamentaria.AuthService.Application.Services
             _provider = provider;
         }
 
-        public async Task<Response<BootstrapResponseDTO>> CreateBootstrapSecret(long serviceId)
+        public async Task<Response<BootstrapResponseDTO>> GenerateBootstrapSecretAsync(long serviceId)
         {
             try
             {
                 var bootstrapSecretTokenService = _provider.GetRequiredKeyedService<ITokenService<Bootstrap>>("bootstrapSecretToken");
-                
-                var service = _serviceService.GetById(serviceId);
 
-                if(!service.Success)
-                    throw new InfoException($"O {serviceId} não foi encontrado", ErrorCodeEnum.NotFound);
+                var service = await _serviceService.GetByIdAsync(serviceId);
 
-                var bootstrap = _repository.GetActiveByServiceId(serviceId);
+                if (service is null)
+                    throw new InfoException($"O id do servico {serviceId} nao foi encontrado.", ErrorCodeEnum.NotFound);
 
-                if (bootstrap is not null)
-                    await _repository.Inactive(bootstrap.Id);
+                var gridParams = new GridParams
+                {
+                    Filters = new List<FilterParam>
+                    {
+                        new FilterParam
+                        {
+                            Field = "ServiceId",
+                            Operator = "eq",
+                            Value = serviceId.ToString()
+                        },
+                        new FilterParam
+                        {
+                            Field = "Active",
+                            Operator = "eq",
+                            Value = (1).ToString()
+                        },
+                    }
+                };
+
+                var (bootstrap, paginataion) = await _repository.GetAsync(gridParams);
+
+                if (bootstrap.Any())
+                    await _repository.Inactive(bootstrap.First().Id);
 
                 var newBootstrap = new Bootstrap
                 {
                     ServiceId = serviceId,
                     Active = true,
-                    CreateAt = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow,
                     ExpiresAt = DateTime.UtcNow.AddHours(6),
                     Hash = "HashPlaceholder"
                 };
 
-                var insertedBootstrap =  await _repository.Insert(newBootstrap);
+                var insertedBootstrap =  await _repository.InsertAsync(newBootstrap);
 
                 var secretAndHash = bootstrapSecretTokenService.Generate(insertedBootstrap);
 
@@ -63,7 +83,7 @@ namespace Orcamentaria.AuthService.Application.Services
                 {
                     BootstrapId = insertedBootstrap.Id,
                     ServiceId = serviceId,
-                    ServiceName = service.Data.Name,
+                    ServiceName = service.Name,
                     BootstrapSecret = parts[0],
                     ExpiresAt = insertedBootstrap.ExpiresAt
                 };
@@ -80,23 +100,11 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Response<BootstrapResponseDTO> GetById(long id)
+        public async Task<Bootstrap?> GetByIdAsync(long id)
         {
             try
             {
-                var bootstrap = _repository.GetById(id);
-
-                if (bootstrap is null)
-                    throw new InfoException($"O {id} não encontrado", ErrorCodeEnum.NotFound);
-
-                var response = new BootstrapResponseDTO
-                {
-                    BootstrapId = bootstrap.Id,
-                    ServiceId = bootstrap.ServiceId,
-                    ExpiresAt = bootstrap.ExpiresAt
-                };
-
-                return new Response<BootstrapResponseDTO>(response);
+                return await _repository.GetByIdAsync(id);
             }
             catch (DefaultException)
             {
@@ -108,18 +116,37 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Response<long> RevokeBootstrapSecret(long serviceId)
+        public async Task<Response<long>> RevokeBootstrapSecretAsync(long serviceId)
         {
             try
             {
-                var bootstrap = _repository.GetActiveByServiceId(serviceId);
+                var gridParams = new GridParams
+                {
+                    Filters = new List<FilterParam>
+                    {
+                        new FilterParam
+                        {
+                            Field = "ServiceId",
+                            Operator = "eq",
+                            Value = serviceId.ToString()
+                        },
+                        new FilterParam
+                        {
+                            Field = "Active",
+                            Operator = "eq",
+                            Value = (true).ToString()
+                        },
+                    }
+                };
 
-                if(bootstrap is null)
-                    throw new InfoException("Token de bootstrap ativo não encontrado para o serviço informado", ErrorCodeEnum.NotFound);
+                var (bootstrap, paginataion) = await _repository.GetAsync(gridParams);
 
-                _repository.Inactive(bootstrap.Id);
+                if (!bootstrap.Any())
+                    throw new InfoException("Nao ha bootstrap secret para ser revogado.", ErrorCodeEnum.NotFound);
 
-                return new Response<long>(serviceId);
+                _repository.Inactive(bootstrap.First().Id);
+
+                return new Response<long>(serviceId, "Bootstrap secret revogado com sucesso.");
             }
             catch (DefaultException)
             {

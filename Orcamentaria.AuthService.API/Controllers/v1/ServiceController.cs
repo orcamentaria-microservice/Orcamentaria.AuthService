@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Orcamentaria.AuthService.Domain.DTOs.Service;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.API.Controllers.v1
 {
@@ -18,13 +19,13 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             _service = service;
         }
 
-        [Authorize(Roles = "MASTER,SERVICE:READ")]
-        [HttpGet("GetById/{id}", Name = "ServiceGetById")]
-        public Response<ServiceResponseDTO> GetById(long id)
+        [Authorize(Roles = "MASTER")]
+        [HttpPost("Get", Name = "ServiceGet")]
+        public async Task<Response<IEnumerable<ServiceResponseDTO>>?> GetAsync([FromBody] GridParams gridParams)
         {
             try
             {
-                return _service.GetById(id);
+                return await _service.GetAsync(gridParams);
             }
             catch (Exception)
             {
@@ -32,13 +33,13 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "MASTER,SERVICE:CREATE")]
+        [Authorize(Roles = "MASTER")]
         [HttpPost(Name = "ServiceInsert")]
-        public async Task<Response<ServiceResponseDTO>> Insert([FromBody] ServiceInsertDTO dto)
+        public async Task<Response<ServiceResponseDTO>> InsertAsync([FromBody] ServiceInsertDTO dto)
         {
             try
             {
-                return await _service.Insert(dto);
+                return await _service.InsertAsync(dto);
             }
             catch (Exception)
             {
@@ -46,13 +47,13 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "MASTER,SERVICE:UPDATE")]
+        [Authorize(Roles = "MASTER")]
         [HttpPut("{id}", Name = "ServiceUpdate")]
-        public async Task<Response<ServiceResponseDTO>> Update(long id, [FromBody] ServiceUpdateDTO dto)
+        public async Task<Response<ServiceResponseDTO>> UpdateAsync(long id, [FromBody] ServiceUpdateDTO dto)
         {
             try
             {
-                return await _service.Update(id, dto);
+                return await _service.UpdateAsync(id, dto);
             }
             catch (Exception)
             {
@@ -60,13 +61,13 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
             }
         }
 
-        [Authorize(Roles = "MASTER,SERVICE:UPDATE")]
+        [Authorize(Roles = "MASTER")]
         [HttpPut("UpdateCredentials/{id}", Name = "ServiceUpdateCredentials")]
-        public async Task<Response<ServiceResponseDTO>> UpdateCredentials(long id)
+        public async Task<Response<ServiceResponseDTO>> UpdateCredentialsAsync(long id)
         {
             try
             {
-                return await _service.UpdateCredentials(id);
+                return await _service.UpdateCredentialsAsync(id);
             }
             catch (Exception)
             {

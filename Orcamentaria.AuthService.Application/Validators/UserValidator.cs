@@ -23,16 +23,11 @@ namespace Orcamentaria.AuthService.Application.Validators
         public UserValidator()
         {
             RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("O {PropertyName} é obrigatório.")
-                .MaximumLength(100).WithMessage("O tamanho máximo do {PropertyName} é de {MaxLength} caracteres.");
+                .NotEmpty().WithMessage("O {PropertyName} e obrigatorio.")
+                .MaximumLength(100).WithMessage("O tamanho maximo do {PropertyName} e de {MaxLength} caracteres.");
             RuleFor(x => x.CompanyId)
-                .NotNull().WithMessage("O {PropertyName} é obrigatório.")
-                .GreaterThan(0).WithMessage("O {PropertyName} é inválido.");
-            RuleFor(x => x.CreateAt)
-                .NotNull().WithMessage("O {PropertyName} é obrigatório.");
-            RuleFor(x => x.UpdateAt.Date)
-                .NotEmpty().WithMessage("O {PropertyName} é obrigatório.")
-                .LessThan(DateTime.Now.Date).WithMessage("A {PropertyName} não pode ser inferior a {ComparisonValue}.");
+                .NotNull().WithMessage("O {PropertyName} e obrigatorio.")
+                .GreaterThan(0).WithMessage("O {PropertyName} e invalido.");
         }
 
         public ValidationResult ValidateBeforeInsert(User entity)
@@ -40,11 +35,11 @@ namespace Orcamentaria.AuthService.Application.Validators
             var validator = new UserValidator();
 
             validator.RuleFor(x => x.Id)
-                .Empty().WithMessage("O {PropertyName} não deve ser informado.");
+                .Empty().WithMessage("O {PropertyName} nao deve ser informado.");
 
             validator.RuleFor(x => x.Email)
-                .EmailAddress().WithMessage("O {PropertyName} é inválido.")
-                .NotEmpty().WithMessage("O {PropertyName} é obrigatório.")
+                .EmailAddress().WithMessage("O {PropertyName} e invalido.")
+                .NotEmpty().WithMessage("O {PropertyName} e obrigatorio.")
                 .Length(200).WithMessage("O {PropertyName} deve ter {MaxLength} caracteres.");
 
             var resultValidationPassword = _passwordService.ValidatePattern(entity.Password);
@@ -65,11 +60,11 @@ namespace Orcamentaria.AuthService.Application.Validators
             validator.RuleFor(x => x.Id)
                .Must((x, cancelation) =>
                {
-                   var entity = _repository.GetById(x.Id);
+                   var entity = _repository.GetByIdAsync(x.Id).GetAwaiter().GetResult();
 
                    return entity is not null;
 
-               }).WithMessage("Id não encontrado.");
+               }).WithMessage("Id nao encontrado.");
 
             return validator.Validate(entity);
         }

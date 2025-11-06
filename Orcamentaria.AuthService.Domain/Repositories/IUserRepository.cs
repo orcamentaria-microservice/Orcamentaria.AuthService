@@ -1,17 +1,13 @@
 ﻿using Orcamentaria.AuthService.Domain.Models;
-using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Repositories;
 
 namespace Orcamentaria.AuthService.Domain.Repositories
 {
-    public interface IUserRepository
+    public interface IUserRepository : IBasicRepository<User>
     {
-        User? GetById(long id);
         User? GetByEmail(string email);
-        IEnumerable<User> GetByCompanyId();
-        Task<User> Insert(User user);
-        Task<User> Update(long id, User user);
-        Task<User> UpdatePassword(long id, string password);
-        Task<User> AddPermissions(long userId, IEnumerable<Permission> permissions);
-        Task<User> RemovePermissions(long userId, IEnumerable<Permission> permissions);
+        Task<User> UpdatePasswordAsync(long id, string password);
+        Task<User> AddPermissionsAsync(long userId, IEnumerable<Permission> permissions);
+        Task<User> RemovePermissionsAsync(long userId, IEnumerable<Permission> permissions);
     }
 }
