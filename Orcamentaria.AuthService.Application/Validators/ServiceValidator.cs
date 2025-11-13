@@ -17,37 +17,26 @@ namespace Orcamentaria.AuthService.Application.Validators
             _repository = serviceRepository;
         }
 
-        public ServiceValidator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("O {PropertyName} e obrigatorio.")
-                .MaximumLength(100).WithMessage("O tamanho maximo do {PropertyName} e de {MaxLength} caracteres.");
-        }
-
         public ValidationResult ValidateBeforeInsert(Service entity)
         {
-            var validator = new ServiceValidator();
-
-            validator.RuleFor(x => x.Id)
+            RuleFor(x => x.Id)
                 .Empty().WithMessage("O {PropertyName} nao deve ser informado.");
 
-            validator.RuleFor(x => x.ClientId)
+            RuleFor(x => x.ClientId)
                 .NotNull().WithMessage("O {PropertyName} e obrigatorio.");
 
-            validator.RuleFor(x => x.ClientSecret)
+            RuleFor(x => x.ClientSecret)
                 .NotNull().WithMessage("O {PropertyName} e obrigatorio.");
 
-            return validator.Validate(entity);
+            return Validate(entity);
         }
 
         public ValidationResult ValidateBeforeUpdate(Service entity)
         {
-            var validator = new ServiceValidator();
-
-            validator.RuleFor(x => x.Id)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("O {PropertyName} deve ser informado.");
 
-            validator.RuleFor(x => x.Id)
+            RuleFor(x => x.Id)
                .Must((x, cancelation) =>
                {
                    var entity = _repository.GetByIdAsync(x.Id).GetAwaiter().GetResult();
@@ -56,7 +45,14 @@ namespace Orcamentaria.AuthService.Application.Validators
 
                }).WithMessage("Id nao encontrado.");
 
-            return validator.Validate(entity);
+            return Validate(entity);
+        }
+
+        public void CommonValidation(Service entity)
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("O {PropertyName} e obrigatorio.")
+                .MaximumLength(100).WithMessage("O tamanho maximo do {PropertyName} e de {MaxLength} caracteres.");
         }
     }
 }

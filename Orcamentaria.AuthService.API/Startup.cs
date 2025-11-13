@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-using Orcamentaria.AuthService.Application.Providers;
+﻿using Orcamentaria.AuthService.Application.Providers;
 using Orcamentaria.AuthService.Application.Services;
 using Orcamentaria.AuthService.Application.Validators;
 using Orcamentaria.AuthService.Domain.Mappers;
@@ -8,15 +7,11 @@ using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.AuthService.Infrastructure.Contexts;
 using Orcamentaria.AuthService.Infrastructure.Repositories;
-using Orcamentaria.Lib.Application.Services.Test;
 using Orcamentaria.Lib.Domain.Contexts;
-using Orcamentaria.Lib.Domain.Models.Configurations;
 using Orcamentaria.Lib.Domain.Providers;
-using Orcamentaria.Lib.Domain.Services;
 using Orcamentaria.Lib.Domain.Validators;
-using Orcamentaria.Lib.Infrastructure;
+using Orcamentaria.Lib.Infrastructure.Configures;
 using Orcamentaria.Lib.Infrastructure.Contexts;
-using Orcamentaria.Lib.Infrastructure.Middlewares;
 
 namespace Orcamentaria.AuthService.API
 {
@@ -34,13 +29,17 @@ namespace Orcamentaria.AuthService.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            CommonDI.AddServiceRegistryHosted(services, Configuration);
+            services.AddServiceRegistryHosted(Configuration);
 
-            CommonDI.ResolveCommonServicesWithMySql<MySqlContext>(_serviceName, _apiVersion, services, Configuration, () =>
+            services.ResolveCommonServicesWithMySql<MySqlContext>(
+                configuration: Configuration, 
+                serviceName: _serviceName, 
+                apiVersion: _apiVersion, 
+                customServices: () =>
             {
                 services.AddScoped<IUserAuthContext, UserAuthContext>();
 
-                services.AddAutoMapper(
+                services.AddAutoMapper(_ => { },
                     typeof(PermissionMapper),
                     typeof(ServiceMapper),
                     typeof(UserMapper));
@@ -71,13 +70,10 @@ namespace Orcamentaria.AuthService.API
                 services.AddKeyedScoped<ITokenService<Service>, BootstrapTokenService>("bootstrapToken");
 
                 services.AddScoped<ITokenProvider, TokenProvider>();
-
-                services.AddSingleton<ILogService, LogService>();
-                services.AddSingleton<IPublishMessageBrokerService, RabbitMqPublishService>();
             });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-            => CommonDI.ConfigureCommon(_serviceName, _apiVersion, app, env);
+            => app.ConfigureCommon(env, _serviceName, _apiVersion);
     }
 }

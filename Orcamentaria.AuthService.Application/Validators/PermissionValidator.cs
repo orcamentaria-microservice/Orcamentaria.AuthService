@@ -17,7 +17,36 @@ namespace Orcamentaria.AuthService.Application.Validators
             _repository = permissionRepository;
         }
 
-        public PermissionValidator()
+        public ValidationResult ValidateBeforeInsert(Permission entity)
+        {
+            CommonValidation(entity);
+
+            RuleFor(x => x.Id)
+                .Empty().WithMessage("O {PropertyName} nao deve ser informado.");
+
+            return Validate(entity);
+        }
+
+        public ValidationResult ValidateBeforeUpdate(Permission entity)
+        {
+            CommonValidation(entity);
+
+            RuleFor(x => x.Id)
+                .NotEmpty().WithMessage("O {PropertyName} deve ser informado.");
+
+            RuleFor(x => x.Id)
+               .Must((x, cancelation) =>
+               {
+                   var entity = _repository.GetByIdAsync(x.Id).GetAwaiter().GetResult();
+
+                   return entity is not null;
+
+               }).WithMessage("Id nao encontrado.");
+
+            return Validate(entity);
+        }
+
+        public void CommonValidation(Permission entity)
         {
             RuleFor(x => x.Resource)
                 .NotNull().WithMessage("O {PropertyName} e obrigatorio.")
@@ -26,7 +55,7 @@ namespace Orcamentaria.AuthService.Application.Validators
                 .NotNull().WithMessage("O {PropertyName} e obrigatorio.")
                 .MaximumLength(150).WithMessage("O tamanho maximo da {PropertyName} e de {MaxLength} caracteres.");
             RuleFor(x => x)
-                .Must(x => 
+                .Must(x =>
                 {
                     if (x.Resource == ResourceEnum.MASTER)
                         return true;
@@ -45,35 +74,6 @@ namespace Orcamentaria.AuthService.Application.Validators
             RuleFor(x => x.IncrementalPermission)
                 .MaximumLength(50).WithMessage("O tamanho maximo da {PropertyName} e de {MaxLength} caracteres.")
                 .Must(x => !x.Contains(" ")).WithMessage("O {PropertyName} nao pode conter espacos, ex: PERMISSAO GERAL.");
-        }
-
-        public ValidationResult ValidateBeforeInsert(Permission entity)
-        {
-            var validator = new PermissionValidator();
-
-            validator.RuleFor(x => x.Id)
-                .Empty().WithMessage("O {PropertyName} nao deve ser informado.");
-
-            return validator.Validate(entity);
-        }
-
-        public ValidationResult ValidateBeforeUpdate(Permission entity)
-        {
-            var validator = new PermissionValidator();
-
-            validator.RuleFor(x => x.Id)
-                .NotEmpty().WithMessage("O {PropertyName} deve ser informado.");
-
-            validator.RuleFor(x => x.Id)
-               .Must((x, cancelation) =>
-               {
-                   var entity = _repository.GetByIdAsync(x.Id).GetAwaiter().GetResult();
-
-                   return entity is not null;
-
-               }).WithMessage("Id nao encontrado.");
-
-            return validator.Validate(entity);
         }
     }
 }

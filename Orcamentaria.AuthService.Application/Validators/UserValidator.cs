@@ -20,24 +20,12 @@ namespace Orcamentaria.AuthService.Application.Validators
             _passwordService = passwordService;
         }
 
-        public UserValidator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("O {PropertyName} e obrigatorio.")
-                .MaximumLength(100).WithMessage("O tamanho maximo do {PropertyName} e de {MaxLength} caracteres.");
-            RuleFor(x => x.CompanyId)
-                .NotNull().WithMessage("O {PropertyName} e obrigatorio.")
-                .GreaterThan(0).WithMessage("O {PropertyName} e invalido.");
-        }
-
         public ValidationResult ValidateBeforeInsert(User entity)
         {
-            var validator = new UserValidator();
-
-            validator.RuleFor(x => x.Id)
+            RuleFor(x => x.Id)
                 .Empty().WithMessage("O {PropertyName} nao deve ser informado.");
 
-            validator.RuleFor(x => x.Email)
+            RuleFor(x => x.Email)
                 .EmailAddress().WithMessage("O {PropertyName} e invalido.")
                 .NotEmpty().WithMessage("O {PropertyName} e obrigatorio.")
                 .Length(200).WithMessage("O {PropertyName} deve ter {MaxLength} caracteres.");
@@ -52,12 +40,12 @@ namespace Orcamentaria.AuthService.Application.Validators
 
         public ValidationResult ValidateBeforeUpdate(User entity)
         {
-            var validator = new UserValidator();
+            CommonValidation(entity);
 
-            validator.RuleFor(x => x.Id)
+            RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("O {PropertyName} deve ser informado.");
 
-            validator.RuleFor(x => x.Id)
+            RuleFor(x => x.Id)
                .Must((x, cancelation) =>
                {
                    var entity = _repository.GetByIdAsync(x.Id).GetAwaiter().GetResult();
@@ -66,7 +54,17 @@ namespace Orcamentaria.AuthService.Application.Validators
 
                }).WithMessage("Id nao encontrado.");
 
-            return validator.Validate(entity);
+            return Validate(entity);
+        }
+
+        public void CommonValidation(User entity)
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("O {PropertyName} e obrigatorio.")
+                .MaximumLength(100).WithMessage("O tamanho maximo do {PropertyName} e de {MaxLength} caracteres.");
+            RuleFor(x => x.CompanyId)
+                .NotNull().WithMessage("O {PropertyName} e obrigatorio.")
+                .GreaterThan(0).WithMessage("O {PropertyName} e invalido.");
         }
     }
 }
