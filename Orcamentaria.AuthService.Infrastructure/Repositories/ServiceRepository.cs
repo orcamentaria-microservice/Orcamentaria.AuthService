@@ -1,4 +1,5 @@
-﻿using Orcamentaria.AuthService.Domain.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Infrastructure.Contexts;
 using Orcamentaria.Lib.Domain.Contexts;
@@ -7,7 +8,7 @@ using Orcamentaria.Lib.Infrastructure.Repositories;
 
 namespace Orcamentaria.AuthService.Infrastructure.Repositories
 {
-    public class ServiceRepository : BasicRepository<Service>, IServiceRepository
+    public class ServiceRepository : BaseRepository<Service>, IServiceRepository<Service>
     {
         private readonly MySqlContext _dbContext;
 
@@ -19,11 +20,11 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
             _dbContext = dbContext;
         }
 
-        public Service? GetByCredentials(string clientId, string clientSecret)
+        public async Task<Service?> GetByCredentialsAsync(string clientId, string clientSecret)
         {
             try
             {
-                return _dbContext.Services.FirstOrDefault(
+                return await _dbContext.Services.FirstOrDefaultAsync(
                     x => x.ClientId == clientId && x.ClientSecret == clientSecret);
             }
             catch (Exception ex)

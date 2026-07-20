@@ -6,7 +6,7 @@ using Orcamentaria.Lib.Domain.Contexts;
 
 namespace Orcamentaria.AuthService.Infrastructure.Repositories
 {
-    public class PermissionRepository : BasicRepository<Permission>, IPermissionRepository
+    public class PermissionRepository : BaseRepository<Permission>, IPermissionRepository<Permission>
     {
         public PermissionRepository(
             MySqlContext dbContext, 

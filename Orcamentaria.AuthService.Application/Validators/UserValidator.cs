@@ -9,11 +9,11 @@ namespace Orcamentaria.AuthService.Application.Validators
 {
     public class UserValidator : AbstractValidator<User>, IValidatorEntity<User>
     {
-        private readonly IUserRepository _repository;
+        private readonly IUserRepository<User> _repository;
         private readonly IPasswordService _passwordService;
 
         public UserValidator(
-            IUserRepository userRepository,
+            IUserRepository<User> userRepository,
             IPasswordService passwordService)
         {
             _repository = userRepository;

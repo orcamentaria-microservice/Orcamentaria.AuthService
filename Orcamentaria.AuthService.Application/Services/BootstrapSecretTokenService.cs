@@ -10,9 +10,9 @@ namespace Orcamentaria.AuthService.Application.Services
 {
     public class BootstrapSecretTokenService : ITokenService<Bootstrap>
     {
-        private readonly IBootstrapRepository _bootstrapRepository;
+        private readonly IBootstrapRepository<Bootstrap> _bootstrapRepository;
 
-        public BootstrapSecretTokenService(IBootstrapRepository bootstrapRepository)
+        public BootstrapSecretTokenService(IBootstrapRepository<Bootstrap> bootstrapRepository)
         {
             _bootstrapRepository = bootstrapRepository;
         }

@@ -14,12 +14,12 @@ namespace Orcamentaria.AuthService.Application.Services
 {
     public class PermissionService : IPermissionService
     {
-        private readonly IPermissionRepository _repository;
+        private readonly IPermissionRepository<Permission> _repository;
         private readonly IMapper _mapper;
         private readonly IValidatorEntity<Permission> _validator;
 
         public PermissionService(
-            IPermissionRepository repository, 
+            IPermissionRepository<Permission> repository, 
             IMapper mapper,
             IValidatorEntity<Permission> validator)
         {

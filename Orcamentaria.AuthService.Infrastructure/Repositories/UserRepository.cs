@@ -4,11 +4,12 @@ using Orcamentaria.AuthService.Domain.Repositories;
 using Orcamentaria.AuthService.Infrastructure.Contexts;
 using Orcamentaria.Lib.Domain.Contexts;
 using Orcamentaria.Lib.Domain.Exceptions;
+using Orcamentaria.Lib.Domain.Models.Exceptions;
 using Orcamentaria.Lib.Infrastructure.Repositories;
 
 namespace Orcamentaria.AuthService.Infrastructure.Repositories
 {
-    public class UserRepository : BasicRepository<User>, IUserRepository
+    public class UserRepository : BaseRepository<User>, IUserRepository<User>
     {
         private readonly MySqlContext _dbContext;
         private readonly IUserAuthContext _userAuthContext;
@@ -27,13 +28,20 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
             try
             {
                 var entity = _dbContext.Users
-                    .First(x => x.Id == id && x.CompanyId == _userAuthContext.CompanyId);
-            
+                    .FirstOrDefault(x => x.Id == id && x.CompanyId == _userAuthContext.CompanyId);
+
+                if (entity is null)
+                    throw new NotFoundException("Usuário não encontrado.");
+
                 entity.Password = password;
 
                 await _dbContext.SaveChangesAsync();
 
                 return entity;
+            }
+            catch (DefaultException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -47,13 +55,20 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
             {
                 var userEntity = _dbContext.Users
                     .Include(x => x.Permissions)
-                    .First(x => x.Id == userId && x.CompanyId == _userAuthContext.CompanyId);
+                    .FirstOrDefault(x => x.Id == userId && x.CompanyId == _userAuthContext.CompanyId);
+
+                if (userEntity is null)
+                    throw new NotFoundException("Usuário não encontrado.");
 
                 userEntity.Permissions = userEntity.Permissions.Union(permissions).ToList();
 
                 await _dbContext.SaveChangesAsync();
 
                 return userEntity;
+            }
+            catch (DefaultException)
+            {
+                throw;
             }
             catch (Exception ex)
             {
@@ -67,7 +82,10 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
             {
                 var userEntity = _dbContext.Users
                     .Include(x => x.Permissions)
-                    .First(x => x.Id == userId && x.CompanyId == _userAuthContext.CompanyId);
+                    .FirstOrDefault(x => x.Id == userId && x.CompanyId == _userAuthContext.CompanyId);
+
+                if (userEntity is null)
+                    throw new NotFoundException("Usuário não encontrado.");
 
                 foreach (var permission in permissions)
                 {
@@ -77,6 +95,10 @@ namespace Orcamentaria.AuthService.Infrastructure.Repositories
                 await _dbContext.SaveChangesAsync();
 
                 return userEntity;
+            }
+            catch (DefaultException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

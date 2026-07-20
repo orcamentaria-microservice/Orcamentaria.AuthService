@@ -1,11 +1,15 @@
-﻿using Orcamentaria.AuthService.Domain.Models;
-using Orcamentaria.Lib.Domain.Repositories;
+﻿using Orcamentaria.Lib.Domain.Models;
+using Orcamentaria.Lib.Domain.Models.Responses;
+using System.Linq.Expressions;
 
 namespace Orcamentaria.AuthService.Domain.Repositories
 {
-    public interface IBootstrapRepository : IBasicRepository<Bootstrap>
+    public interface IBootstrapRepository<TEntity> where TEntity : class
     {
-        Task<Bootstrap> UpdateHash(long id, string hash);
-        Task<Bootstrap> Inactive(long id);
+        Task<TEntity?> GetByIdAsync(long id, params Expression<Func<TEntity, object>>[] includes);
+        Task<(IEnumerable<TEntity?>, ResponsePagination pagination)> GetAsync(GridParams gridParams, params Expression<Func<TEntity, object>>[] includes);
+        Task<TEntity> InsertAsync(TEntity entity);
+        Task<TEntity> UpdateHash(long id, string hash);
+        Task<TEntity> Inactive(long id);
     }
 }

@@ -6,7 +6,7 @@ namespace Orcamentaria.AuthService.Infrastructure.Contexts
 {
     public class MySqlContext : DbContext
     {
-        public MySqlContext(DbContextOptions<MySqlContext> options)
+        public MySqlContext(DbContextOptions<DbContext> options)
         : base(options)
         {
 

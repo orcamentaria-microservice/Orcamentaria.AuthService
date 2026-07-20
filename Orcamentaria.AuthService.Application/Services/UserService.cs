@@ -15,7 +15,7 @@ namespace Orcamentaria.AuthService.Application.Services
 {
     public class UserService : IUserService
     {
-        private readonly IUserRepository _repository;
+        private readonly IUserRepository<User> _repository;
         private readonly IValidatorEntity<User> _validator;
         private readonly IPasswordService _passwordService;
         private readonly IPermissionService _permissionService;
@@ -23,7 +23,7 @@ namespace Orcamentaria.AuthService.Application.Services
         private readonly IUserAuthContext _userAuthContext;
 
         public UserService(
-            IUserRepository userRepository,
+            IUserRepository<User> userRepository,
             IValidatorEntity<User> validator,
             IPasswordService passwordService,
             IPermissionService permissionService,

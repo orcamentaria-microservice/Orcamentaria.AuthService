@@ -7,9 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
-    <PackageReference Include="Orcamentaria.Lib.Domain" Version="10.0.8" />
+    <PackageReference Include="Microsoft.OpenApi" Version="3.8.0" />
+    <PackageReference Include="Orcamentaria.Lib.Domain" Version="10.1.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
 

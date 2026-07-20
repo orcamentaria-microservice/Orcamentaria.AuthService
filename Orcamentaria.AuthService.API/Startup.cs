@@ -49,10 +49,10 @@ namespace Orcamentaria.AuthService.API
                 services.AddScoped<IValidatorEntity<Service>, ServiceValidator>();
                 services.AddScoped<IValidatorEntity<User>, UserValidator>();
 
-                services.AddScoped<IPermissionRepository, PermissionRepository>();
-                services.AddScoped<IServiceRepository, ServiceRepository>();
-                services.AddScoped<IUserRepository, UserRepository>();
-                services.AddScoped<IBootstrapRepository, BootstrapRepository>();
+                services.AddScoped<IPermissionRepository<Permission>, PermissionRepository>();
+                services.AddScoped<IServiceRepository<Service>, ServiceRepository>();
+                services.AddScoped<IUserRepository<User>, UserRepository>();
+                services.AddScoped<IBootstrapRepository<Bootstrap>, BootstrapRepository>();
 
                 services.AddScoped<IAuthenticationService, AuthenticationService>();
                 services.AddScoped<IPasswordService, PasswordService>();

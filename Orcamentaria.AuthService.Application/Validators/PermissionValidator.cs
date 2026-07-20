@@ -9,10 +9,10 @@ namespace Orcamentaria.AuthService.Application.Validators
 {
     public class PermissionValidator : AbstractValidator<Permission>, IValidatorEntity<Permission>
     {
-        private readonly IPermissionRepository _repository;
+        private readonly IPermissionRepository<Permission> _repository;
 
         public PermissionValidator(
-            IPermissionRepository permissionRepository)
+            IPermissionRepository<Permission> permissionRepository)
         {
             _repository = permissionRepository;
         }

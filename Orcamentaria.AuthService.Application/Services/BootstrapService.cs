@@ -13,12 +13,12 @@ namespace Orcamentaria.AuthService.Application.Services
 {
     public class BootstrapService : IBootstrapService
     {
-        private readonly IBootstrapRepository _repository;
+        private readonly IBootstrapRepository<Bootstrap> _repository;
         private readonly IServiceService _serviceService;
         private readonly IServiceProvider _provider;
 
         public BootstrapService(
-            IBootstrapRepository repository,
+            IBootstrapRepository<Bootstrap> repository,
             IServiceService serviceService,
             IServiceProvider provider)
         {

@@ -9,10 +9,10 @@ namespace Orcamentaria.AuthService.Application.Validators
 {
     public class ServiceValidator : AbstractValidator<Service>, IValidatorEntity<Service>
     {
-        private readonly IServiceRepository _repository;
+        private readonly IServiceRepository<Service> _repository;
 
         public ServiceValidator(
-            IServiceRepository serviceRepository)
+            IServiceRepository<Service> serviceRepository)
         {
             _repository = serviceRepository;
         }
