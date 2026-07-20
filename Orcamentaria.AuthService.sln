@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.8.34330.188
+# Visual Studio Version 18
+VisualStudioVersion = 18.8.12009.203 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orcamentaria.AuthService.API", "Orcamentaria.AuthService.API\Orcamentaria.AuthService.API.csproj", "{D2E00DF9-CDC1-4BC2-9303-19685B392D8D}"
 EndProject
@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orcamentaria.AuthService.In
 	ProjectSection(ProjectDependencies) = postProject
 		{751E4B31-48A4-46E8-AB6A-ED639084725F} = {751E4B31-48A4-46E8-AB6A-ED639084725F}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orcamentaria.AuthService.Test", "Orcamentaria.AuthService.Test\Orcamentaria.AuthService.Test.csproj", "{5563522F-A176-45DB-9AA5-AD7A9F3904DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,10 @@ Global
 		{F9584C69-E91F-443F-A60B-9F57CE51BFB3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9584C69-E91F-443F-A60B-9F57CE51BFB3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9584C69-E91F-443F-A60B-9F57CE51BFB3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5563522F-A176-45DB-9AA5-AD7A9F3904DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5563522F-A176-45DB-9AA5-AD7A9F3904DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5563522F-A176-45DB-9AA5-AD7A9F3904DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5563522F-A176-45DB-9AA5-AD7A9F3904DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
