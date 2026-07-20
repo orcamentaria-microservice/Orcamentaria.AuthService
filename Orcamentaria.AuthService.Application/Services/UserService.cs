@@ -123,17 +123,18 @@ namespace Orcamentaria.AuthService.Application.Services
 
         public async Task<Response<UserResponseDTO>> UpdateAsync(long id, UserUpdateDTO dto)
         {
-            var user = _mapper.Map<UserUpdateDTO, User>(dto);
-
-            user.Id = id;
-
-            var result = _validator.ValidateBeforeUpdate(user);
-
-            if (!result.IsValid)
-                throw new ValidationException(result);
 
             try
             {
+                var user = _mapper.Map<UserUpdateDTO, User>(dto);
+
+                user.Id = id;
+
+                var result = _validator.ValidateBeforeUpdate(user);
+
+                if (!result.IsValid)
+                    throw new ValidationException(result);
+
                 var entity = await _repository.UpdateAsync(id, user);
 
                 return new Response<UserResponseDTO>(_mapper.Map<User, UserResponseDTO>(entity));
