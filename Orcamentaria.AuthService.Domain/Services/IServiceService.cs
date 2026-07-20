@@ -9,7 +9,7 @@ namespace Orcamentaria.AuthService.Domain.Services
     {
         Task<Service?> GetByIdAsync(long id);
         Task<Response<IEnumerable<ServiceResponseDTO>>?> GetAsync(GridParams gridParams);
-        Service GetByCredentials(string clientId, string clientSecret);
+        Task<Service> GetByCredentialsAsync(string clientId, string clientSecret);
         Task<Response<ServiceResponseDTO>> InsertAsync(ServiceInsertDTO dto);
         Task<Response<ServiceResponseDTO>> UpdateAsync(long id, ServiceUpdateDTO dto);
         Task<Response<ServiceResponseDTO>> UpdateCredentialsAsync(long id);

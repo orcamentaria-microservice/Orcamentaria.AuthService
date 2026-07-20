@@ -15,13 +15,13 @@ namespace Orcamentaria.AuthService.Application.Services
 {
     public class ServiceService : IServiceService
     {
-        private readonly IServiceRepository _repository;
+        private readonly IServiceRepository<Service> _repository;
         private readonly IServiceProvider _provider;
         private readonly IValidatorEntity<Service> _validator;
         private readonly IMapper _mapper;
 
         public ServiceService(
-            IServiceRepository repository,
+            IServiceRepository<Service> repository,
             IServiceProvider provider,
             IValidatorEntity<Service> validator,
             IMapper mapper)
@@ -54,11 +54,11 @@ namespace Orcamentaria.AuthService.Application.Services
             }
         }
 
-        public Service GetByCredentials(string clientId, string clientSecret)
+        public async Task<Service> GetByCredentialsAsync(string clientId, string clientSecret)
         {
             try
             {
-                var data = _repository.GetByCredentials(clientId, clientSecret);
+                var data = await _repository.GetByCredentialsAsync(clientId, clientSecret);
 
                 if (data is null)
                     throw new InfoException($"O {clientId} e {clientSecret} nao foi encontrado", ErrorCodeEnum.NotFound);

@@ -31,12 +31,12 @@ namespace Orcamentaria.AuthService.Application.Services
             _bootstrapService = bootstrapService;
         }
 
-        public Response<AuthenticationServiceResponseDTO> AuthenticateService(string clientId, string clientSecret)
+        public async Task<Response<AuthenticationServiceResponseDTO>> AuthenticateServiceAsync(string clientId, string clientSecret)
         {
             try
             {
                 var serviceTokenService = _provider.GetRequiredKeyedService<ITokenService<Service>>("serviceToken");
-                var service = _serviceService.GetByCredentials(clientId, clientSecret);
+                var service = await _serviceService.GetByCredentialsAsync(clientId, clientSecret);
 
                 if (service is null)
                     throw new InfoException($"Credenciais invalidas.", ErrorCodeEnum.NotFound);

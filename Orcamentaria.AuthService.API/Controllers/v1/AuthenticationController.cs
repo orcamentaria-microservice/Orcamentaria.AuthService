@@ -3,7 +3,6 @@ using Orcamentaria.AuthService.Domain.DTOs.User;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Contexts;
 using Orcamentaria.Lib.Domain.DTOs.Authentication;
-using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models.Responses;
 
 namespace Orcamentaria.AuthService.API.Controllers.v1
@@ -21,14 +20,14 @@ namespace Orcamentaria.AuthService.API.Controllers.v1
         }
 
         [HttpPost("Service/Authenticate/{clientId}/{clientSecret}", Name = "AuthenticateService")]
-        public Response<AuthenticationServiceResponseDTO> AuthenticateService(string clientId, string clientSecret)
+        public async Task<Response<AuthenticationServiceResponseDTO>> AuthenticateServiceAsync(string clientId, string clientSecret)
         {
             try
             {
                 //Reset Path
                 HttpContext.Request.Path = "/api/v1/Authentication/Service/Authenticate";
 
-                return _service.AuthenticateService(clientId, clientSecret);
+                return await _service.AuthenticateServiceAsync(clientId, clientSecret);
             }
             catch (Exception)
             {

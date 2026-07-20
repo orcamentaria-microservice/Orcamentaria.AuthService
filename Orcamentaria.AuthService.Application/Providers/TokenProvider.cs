@@ -24,7 +24,7 @@ namespace Orcamentaria.AuthService.Application.Providers
         {
             try
             {
-                var result = _authenticationService.AuthenticateService(
+                var result = await _authenticationService.AuthenticateServiceAsync(
                     _serviceConfiguration.Value.ClientId,
                     _serviceConfiguration.Value.ClientSecret);
 
