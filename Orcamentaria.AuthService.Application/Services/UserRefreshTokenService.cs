@@ -40,7 +40,7 @@ namespace Orcamentaria.AuthService.Application.Services
 
                 var token = new JwtSecurityToken(
                     issuer: "orcamentaria.auth",
-                    audience: "orcamentaria",
+                    audience: "orcamentaria.user",
                     claims: claims,
                     notBefore: DateTime.UtcNow,
                     expires: DateTime.UtcNow.AddHours(10),
