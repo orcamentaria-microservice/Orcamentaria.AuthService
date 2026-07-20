@@ -28,14 +28,16 @@ namespace Orcamentaria.AuthService.Application.Validators
             RuleFor(x => x.Email)
                 .EmailAddress().WithMessage("O {PropertyName} e invalido.")
                 .NotEmpty().WithMessage("O {PropertyName} e obrigatorio.")
-                .Length(200).WithMessage("O {PropertyName} deve ter {MaxLength} caracteres.");
+                .MaximumLength(200).WithMessage("O {PropertyName} deve ter {MaxLength} caracteres.");
+
+            var result = this.Validate(entity);
 
             var resultValidationPassword = _passwordService.ValidatePattern(entity.Password);
 
             if (!resultValidationPassword.IsValid)
-                return resultValidationPassword;
+                result.Errors.AddRange(resultValidationPassword.Errors);
 
-            return this.Validate(entity);
+            return result;
         }
 
         public ValidationResult ValidateBeforeUpdate(User entity)

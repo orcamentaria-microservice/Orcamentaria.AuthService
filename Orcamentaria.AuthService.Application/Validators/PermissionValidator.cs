@@ -60,7 +60,7 @@ namespace Orcamentaria.AuthService.Application.Validators
                     if (x.Resource == ResourceEnum.MASTER)
                         return true;
 
-                    return x.Type == 0;
+                    return x.Type != 0;
                 })
                 .WithMessage("O Type e obrigatorio.")
                 .Must(x =>

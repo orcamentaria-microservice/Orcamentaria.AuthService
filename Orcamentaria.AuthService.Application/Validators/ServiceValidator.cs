@@ -19,6 +19,8 @@ namespace Orcamentaria.AuthService.Application.Validators
 
         public ValidationResult ValidateBeforeInsert(Service entity)
         {
+            CommonValidation(entity);
+
             RuleFor(x => x.Id)
                 .Empty().WithMessage("O {PropertyName} nao deve ser informado.");
 
@@ -33,6 +35,8 @@ namespace Orcamentaria.AuthService.Application.Validators
 
         public ValidationResult ValidateBeforeUpdate(Service entity)
         {
+            CommonValidation(entity);
+
             RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("O {PropertyName} deve ser informado.");
 
