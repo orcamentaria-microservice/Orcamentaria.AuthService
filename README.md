@@ -206,7 +206,7 @@ A aplicação usa o modelo padrão de configuração do ASP.NET Core (`appsettin
 
 ## 🗄️ Banco de Dados
 
-Persistência em **MySQL** via **Entity Framework Core** (`MySql.EntityFrameworkCore`), com mapeamento explícito via `IEntityTypeConfiguration<T>` (Fluent API) em `Orcamentaria.AuthService.Infrastructure/Configurations`.
+Persistência em **MySQL** via **Entity Framework Core** (`MySql.EntityFrameworkCore`), com mapeamento explícito via `IEntityTypeConfiguration<T>` (Fluent API) em `Orcamentaria.AuthService.Infrastructure/Configurations`. O schema não é versionado por Migrations do EF Core.
 
 | Tabela | Entidade | Observações |
 |---|---|---|
