@@ -84,6 +84,7 @@ logs/
 secrets.json
 appsettings.Development.json
 appsettings.Local.json
+**/Keys/private_key_*.pem
 
 ## Temporary files
 *.tmp
