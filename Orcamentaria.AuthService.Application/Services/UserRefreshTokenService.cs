@@ -4,7 +4,6 @@ using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models.Exceptions;
-using Orcamentaria.Lib.Domain.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -12,21 +11,18 @@ namespace Orcamentaria.AuthService.Application.Services
 {
     public class UserRefreshTokenService : ITokenService<User>
     {
-        private readonly string _private_key = "private_key_user.pem";
-        private readonly string projectName = "Orcamentaria.AuthService.API";
+        private readonly IPrivateKeyReader _keyReader;
 
-        private readonly IRsaService _rsaService;
-
-        public UserRefreshTokenService(IRsaService rsaService)
+        public UserRefreshTokenService(IPrivateKeyReader keyReader)
         {
-            _rsaService = rsaService;
+            _keyReader = keyReader;
         }
 
         public string Generate(User data)
         {
             try
             {
-                var rsa = _rsaService.GenerateRsaSecurityKey(projectName, _private_key);
+                var rsa = _keyReader.ReadUserKey();
 
                 var credentials = new SigningCredentials(rsa, SecurityAlgorithms.RsaSha256);
 
@@ -63,7 +59,7 @@ namespace Orcamentaria.AuthService.Application.Services
         {
             try
             {
-                var rsa = _rsaService.GenerateRsaSecurityKey(projectName, _private_key);
+                var rsa = _keyReader.ReadUserKey();
 
                 var tokenHandler = new JwtSecurityTokenHandler();
 

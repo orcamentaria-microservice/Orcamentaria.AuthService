@@ -3,10 +3,10 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Moq.AutoMock;
 using Orcamentaria.AuthService.Domain.Models;
+using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.AuthService.Test.Fixtures;
 using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
-using Orcamentaria.Lib.Domain.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -28,13 +28,13 @@ namespace Orcamentaria.AuthService.Test.Services
             _service = _mocker.CreateInstance<Application.Services.UserTokenService>(true);
         }
 
-        private void SetupValidRsaService()
+        private void SetupValidKeyReader()
         {
             var rsa = RSA.Create(2048);
             var securityKey = new RsaSecurityKey(rsa);
 
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadUserKey())
                 .Returns(securityKey);
         }
 
@@ -43,7 +43,7 @@ namespace Orcamentaria.AuthService.Test.Services
         [Fact]
         public void Generate_WhenUserHasNoPermissions_ReturnsTokenWithExpectedClaims()
         {
-            SetupValidRsaService();
+            SetupValidKeyReader();
             var data = _fixture.CreateEntity(1);
             data.Permissions = new List<Permission>();
 
@@ -66,7 +66,7 @@ namespace Orcamentaria.AuthService.Test.Services
         [Fact]
         public void Generate_WhenUserHasNonMasterPermissions_ReturnsRoleClaimForEachPermission()
         {
-            SetupValidRsaService();
+            SetupValidKeyReader();
             var data = _fixture.CreateEntity(1);
             var permissions = _fixture.CreatePermissions(2).ToList();
             permissions[0].IncrementalPermission = "special";
@@ -92,7 +92,7 @@ namespace Orcamentaria.AuthService.Test.Services
         [Fact]
         public void Generate_WhenUserHasMasterPermission_ReturnsRoleClaimEqualsMaster()
         {
-            SetupValidRsaService();
+            SetupValidKeyReader();
             var data = _fixture.CreateEntity(1);
             data.Permissions = new List<Permission>
             {
@@ -117,8 +117,8 @@ namespace Orcamentaria.AuthService.Test.Services
         {
             var data = _fixture.CreateEntity(1);
 
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadUserKey())
                 .Throws(new Exception());
 
             Action act = () => _service.Generate(data);

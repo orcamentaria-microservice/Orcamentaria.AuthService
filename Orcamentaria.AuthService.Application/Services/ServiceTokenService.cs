@@ -2,7 +2,6 @@
 using Orcamentaria.AuthService.Domain.Models;
 using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.Lib.Domain.Exceptions;
-using Orcamentaria.Lib.Domain.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -10,23 +9,20 @@ namespace Orcamentaria.AuthService.Application.Services
 {
     public class ServiceTokenService : ITokenService<Service>
     {
-        private readonly string _private_key = "private_key_service.pem";
-        private readonly string projectName = "Orcamentaria.AuthService.API";
+        private readonly IPrivateKeyReader _keyReader;
 
-        private readonly IRsaService _rsaService;
-
-        public ServiceTokenService(IRsaService rsaService)
+        public ServiceTokenService(IPrivateKeyReader keyReader)
         {
-            _rsaService = rsaService;
+            _keyReader = keyReader;
         }
 
         public string Generate(Service data)
         {
             try
             {
-                var rsa = _rsaService.GenerateRsaSecurityKey(projectName, _private_key);
+                var rsa = _keyReader.ReadServiceKey();
 
-                rsa.KeyId = "auth-service-key-1";
+                rsa.KeyId = "auth-service-key-2";
 
                 var credentials = new SigningCredentials(rsa, SecurityAlgorithms.RsaSha256);
 
