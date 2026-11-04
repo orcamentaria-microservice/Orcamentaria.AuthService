@@ -5,18 +5,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <UserSecretsId>0c89a4c6-7a2f-4d5c-a7bc-c8939fa22c17</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Keys\private_key_service.pem" />
-    <None Remove="Keys\private_key_user.pem" />
     <None Remove="Keys\public_key_service.pem" />
     <None Remove="Keys\public_key_user.pem" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Keys\private_key_service.pem" />
-    <EmbeddedResource Include="Keys\private_key_user.pem" />
     <EmbeddedResource Include="Keys\public_key_service.pem" />
   </ItemGroup>
 

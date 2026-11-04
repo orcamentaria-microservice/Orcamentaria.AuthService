@@ -3,11 +3,11 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Moq.AutoMock;
 using Orcamentaria.AuthService.Domain.Models;
+using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.AuthService.Test.Fixtures;
 using Orcamentaria.Lib.Domain.Enums;
 using Orcamentaria.Lib.Domain.Exceptions;
 using Orcamentaria.Lib.Domain.Models.Exceptions;
-using Orcamentaria.Lib.Domain.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Xunit;
@@ -37,8 +37,8 @@ namespace Orcamentaria.AuthService.Test.Services
             var securityKey = new RsaSecurityKey(rsa);
             var user = _fixture.CreateEntity(1);
 
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadUserKey())
                 .Returns(securityKey);
 
             var token = _service.Generate(user);
@@ -60,8 +60,8 @@ namespace Orcamentaria.AuthService.Test.Services
         {
             var user = _fixture.CreateEntity(1);
 
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadUserKey())
                 .Throws(new Exception());
 
             Action act = () => _service.Generate(user);
@@ -80,8 +80,8 @@ namespace Orcamentaria.AuthService.Test.Services
             var securityKey = new RsaSecurityKey(rsa);
             var user = _fixture.CreateEntity(1);
 
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadUserKey())
                 .Returns(securityKey);
 
             var token = _service.Generate(user);
@@ -97,8 +97,8 @@ namespace Orcamentaria.AuthService.Test.Services
             var rsa = RSA.Create(2048);
             var securityKey = new RsaSecurityKey(rsa);
 
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadUserKey())
                 .Returns(securityKey);
 
             Func<Task> act = async () => await _service.ValidateAsync("token-invalido");
@@ -110,8 +110,8 @@ namespace Orcamentaria.AuthService.Test.Services
         [Fact]
         public async Task ValidateAsync_WhenExceptionOccurs_ThrowsUnexpectedException()
         {
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadUserKey())
                 .Throws(new Exception());
 
             Func<Task> act = async () => await _service.ValidateAsync("qualquer-token");

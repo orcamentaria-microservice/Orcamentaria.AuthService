@@ -12,6 +12,7 @@ using Orcamentaria.Lib.Domain.Providers;
 using Orcamentaria.Lib.Domain.Validators;
 using Orcamentaria.Lib.Infrastructure.Configures;
 using Orcamentaria.Lib.Infrastructure.Contexts;
+using Orcamentaria.Lib.Domain.Exceptions;
 
 namespace Orcamentaria.AuthService.API
 {
@@ -70,10 +71,16 @@ namespace Orcamentaria.AuthService.API
                 services.AddKeyedScoped<ITokenService<Service>, BootstrapTokenService>("bootstrapToken");
 
                 services.AddScoped<ITokenProvider, TokenProvider>();
+
+                services.AddSingleton<IPrivateKeyReader, PrivateKeyReader>();
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-            => app.ConfigureCommon(env, _serviceName, _apiVersion);
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IPrivateKeyReader privateKeyReader)
+        {
+            // Force singleton construction at startup so missing key files fail fast.
+            _ = privateKeyReader;
+            app.ConfigureCommon(env, _serviceName, _apiVersion);
+        }
     }
 }

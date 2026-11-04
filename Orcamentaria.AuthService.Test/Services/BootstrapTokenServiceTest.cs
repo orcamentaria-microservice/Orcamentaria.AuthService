@@ -3,9 +3,9 @@ using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Moq.AutoMock;
 using Orcamentaria.AuthService.Domain.Models;
+using Orcamentaria.AuthService.Domain.Services;
 using Orcamentaria.AuthService.Test.Fixtures;
 using Orcamentaria.Lib.Domain.Exceptions;
-using Orcamentaria.Lib.Domain.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -27,13 +27,13 @@ namespace Orcamentaria.AuthService.Test.Services
             _service = _mocker.CreateInstance<Application.Services.BootstrapTokenService>(true);
         }
 
-        private void SetupValidRsaService()
+        private void SetupValidKeyReader()
         {
             var rsa = RSA.Create(2048);
             var securityKey = new RsaSecurityKey(rsa);
 
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadServiceKey())
                 .Returns(securityKey);
         }
 
@@ -42,7 +42,7 @@ namespace Orcamentaria.AuthService.Test.Services
         [Fact]
         public void Generate_WhenValid_ReturnsJwtToken()
         {
-            SetupValidRsaService();
+            SetupValidKeyReader();
             var data = _fixture.CreateEntity(1);
 
             var token = _service.Generate(data);
@@ -54,7 +54,7 @@ namespace Orcamentaria.AuthService.Test.Services
         [Fact]
         public void Generate_WhenValid_ReturnsTokenWithExpectedClaims()
         {
-            SetupValidRsaService();
+            SetupValidKeyReader();
             var data = _fixture.CreateEntity(1);
 
             var token = _service.Generate(data);
@@ -73,8 +73,8 @@ namespace Orcamentaria.AuthService.Test.Services
         {
             var data = _fixture.CreateEntity(1);
 
-            _mocker.GetMock<IRsaService>()
-                .Setup(r => r.GenerateRsaSecurityKey(It.IsAny<string>(), It.IsAny<string>()))
+            _mocker.GetMock<IPrivateKeyReader>()
+                .Setup(r => r.ReadServiceKey())
                 .Throws(new Exception());
 
             Action act = () => _service.Generate(data);

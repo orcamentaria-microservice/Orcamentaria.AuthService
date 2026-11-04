@@ -81,10 +81,17 @@ logs/
 *.sqlite
 
 ## Secrets
+secrets/
 secrets.json
+appsettings.*.local.json
 appsettings.Development.json
 appsettings.Local.json
 **/Keys/private_key_*.pem
+*private*.pem
+*-signing-key.pem
+.env
+.env.*
+!.env.example
 
 ## Temporary files
 *.tmp
@@ -105,6 +112,7 @@ $RECYCLE.BIN/
 
 ## Test results
 TestResults/
+local-packages/
 *.trx
 *.coverage
 *.coveragexml
